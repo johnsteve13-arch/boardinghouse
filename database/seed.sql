@@ -174,14 +174,10 @@ INSERT INTO boarding_house_amenities (boarding_house_id, amenity_id) VALUES
 ('e0000000-0000-0000-0000-000000000003', 'gated'),
 ('e0000000-0000-0000-0000-000000000003', 'cooking_allowed'),
 ('e0000000-0000-0000-0000-000000000003', 'laundry_area')
-ON CONFLICT DO NOTHING;
+ON CONFLICT (boarding_house_id, amenity_id) DO NOTHING;
 
 -- 7. Insert Rooms
-INSERT INTO rooms (
-    id, boarding_house_id, name, category, capacity, available_slots, monthly_rate,
-    rate_type, deposit_amount, advance_months, is_airconditioned, has_private_bathroom,
-    has_window, is_furnished, description
-) VALUES
+INSERT INTO rooms (id, boarding_house_id, name, category, capacity, available_slots, monthly_rate, rate_type, deposit_amount, advance_months, is_airconditioned, has_private_bathroom, has_window, is_furnished, description) VALUES
 ('f0000000-0000-0000-0000-000000000001', 'e0000000-0000-0000-0000-000000000001', 'Single Deluxe Aircon', 'single', 1, 1, 4200.00, 'per_room', 4200.00, 1, TRUE, TRUE, TRUE, TRUE, 'Private solo room with split-type inverter aircon, private toilet and bath, study table and wardrobe cabinet.'),
 ('f0000000-0000-0000-0000-000000000002', 'e0000000-0000-0000-0000-000000000001', 'Double Sharing Fan Room', 'double', 2, 2, 2100.00, 'per_person', 2100.00, 1, FALSE, FALSE, TRUE, TRUE, 'Spacious 2-bed room with large screened windows, individual study desks, and ceiling fan.'),
 ('f0000000-0000-0000-0000-000000000003', 'e0000000-0000-0000-0000-000000000001', 'Quad Economy Bedspace', 'quad', 4, 0, 1800.00, 'per_person', 1800.00, 1, FALSE, FALSE, TRUE, TRUE, 'Double-deck bunks with uratex foam, private lockable drawers under each bed.'),
