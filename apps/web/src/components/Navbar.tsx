@@ -287,12 +287,21 @@ export default function Navbar() {
                 <span>Dashboard</span>
               </Link>
             ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all"
-              >
-                Sign In
-              </Link>
+              <div className="flex items-center space-x-2">
+                <Link
+                  href="/login/owner"
+                  className="px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50/80 text-amber-900 font-semibold text-xs hover:bg-amber-100 transition-all flex items-center space-x-1"
+                >
+                  <Home className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Owner Portal</span>
+                </Link>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all"
+                >
+                  Sign In
+                </Link>
+              </div>
             )}
           </div>
 

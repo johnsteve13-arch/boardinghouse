@@ -136,11 +136,20 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="pt-2 text-center text-xs text-slate-500">
-          <span>Don't have an account? </span>
-          <Link href="/register" className="font-bold text-emerald-700 hover:underline">
-            Register here
-          </Link>
+        <div className="pt-2 text-center text-xs text-slate-500 space-y-2">
+          <div>
+            <span>Don't have an account? </span>
+            <Link href="/register" className="font-bold text-emerald-700 hover:underline">
+              Register here
+            </Link>
+          </div>
+          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between text-[11px]">
+            <span>Are you a Boarding House Owner?</span>
+            <Link href="/login/owner" className="font-bold text-amber-800 hover:text-amber-950 underline flex items-center space-x-1">
+              <span>Owner Portal</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -7,7 +7,7 @@ import { api } from './api';
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<User | undefined>;
   register: (data: any) => Promise<void>;
   logout: () => void;
   switchDemoRole: (role: UserRole) => Promise<void>;
@@ -43,13 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loadUser();
   }, []);
 
-  const login = async (email: string, pass: string) => {
+  const login = async (email: string, pass: string): Promise<User | undefined> => {
     setIsLoading(true);
     try {
       const data = await api.login(email, pass);
       if (data?.user) {
         setUser(data.user);
+        return data.user;
       }
+      return undefined;
     } finally {
       setIsLoading(false);
     }
