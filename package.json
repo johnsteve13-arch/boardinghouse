@@ -1,0 +1,36 @@
+{
+  "name": "seait-stay-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-grade SEAIT Boarding House Information & Finder System",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:api": "npm run dev --workspace=api",
+    "build": "npm run build --workspaces",
+    "build:web": "npm run build --workspace=web",
+    "build:api": "npm run build --workspace=api",
+    "start:web": "npm run start --workspace=web",
+    "start:api": "npm run start --workspace=api",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "keywords": [
+    "seait",
+    "tupi",
+    "boarding-house",
+    "student-accommodation",
+    "south-cotabato",
+    "philippines"
+  ],
+  "author": "SEAIT Stay Team",
+  "license": "MIT",
+  "optionalDependencies": {
+    "@next/swc-wasm-nodejs": "^14.2.33",
+    "@next/swc-win32-x64-msvc": "^14.2.33"
+  }
+}
