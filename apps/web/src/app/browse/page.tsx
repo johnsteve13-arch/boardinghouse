@@ -130,33 +130,35 @@ function BrowseContent() {
           </div>
 
           {/* View Mode Toggle: Split / Grid / Map */}
-          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
             <button
               onClick={() => setViewMode('split')}
-              className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'split' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500'
+              className={`hidden md:inline-flex px-2.5 py-1.5 rounded-lg font-bold transition-all ${
+                viewMode === 'split' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-900'
               }`}
-              title="Split View"
+              title="Side-by-side Split View"
             >
               Split
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'grid' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500'
+              className={`px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1 ${
+                viewMode === 'grid' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-900'
               }`}
               title="Grid View"
             >
-              <LayoutGrid className="w-4 h-4" />
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Grid</span>
             </button>
             <button
               onClick={() => setViewMode('map')}
-              className={`p-1.5 rounded-lg text-xs font-semibold transition-all ${
-                viewMode === 'map' ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500'
+              className={`px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center space-x-1 ${
+                viewMode === 'map' ? 'bg-white shadow-xs text-emerald-800' : 'text-slate-500 hover:text-slate-900'
               }`}
-              title="Map View"
+              title="Interactive 3km Map View"
             >
-              <MapIcon className="w-4 h-4" />
+              <MapIcon className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Map (3km)</span>
             </button>
           </div>
         </div>
@@ -225,15 +227,30 @@ function BrowseContent() {
               </div>
 
               {/* Right Column: Sticky Interactive Map (5 cols) */}
-              <div className="xl:col-span-5 h-[650px] sticky top-24 hidden xl:block">
-                <MapView
-                  properties={properties}
-                  selectedPropertyId={selectedPropertyId}
-                  onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
-                  radiusMeters={filters.radiusMeters}
-                  onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
-                  className="h-full w-full rounded-2xl"
-                />
+              <div className="xl:col-span-5 h-[680px] sticky top-24 hidden xl:flex flex-col space-y-2">
+                <div className="flex items-center justify-between px-2 text-xs font-bold text-slate-700">
+                  <span className="flex items-center space-x-1.5 text-emerald-700">
+                    <Navigation className="w-3.5 h-3.5" />
+                    <span>Live 3.0 km Map View</span>
+                  </span>
+                  <button
+                    onClick={() => setViewMode('map')}
+                    className="text-[11px] text-slate-500 hover:text-emerald-700 flex items-center space-x-1 transition-colors"
+                  >
+                    <span>Expand Full Map</span>
+                    <MapIcon className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="flex-1 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+                  <MapView
+                    properties={properties}
+                    selectedPropertyId={selectedPropertyId}
+                    onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
+                    radiusMeters={filters.radiusMeters}
+                    onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
+                    className="h-full w-full"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -267,18 +284,51 @@ function BrowseContent() {
           )}
 
           {viewMode === 'map' && (
-            <div className="h-[750px] w-full rounded-2xl overflow-hidden border border-slate-200">
-              <MapView
-                properties={properties}
-                selectedPropertyId={selectedPropertyId}
-                onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
-                radiusMeters={filters.radiusMeters}
-                onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
-                className="h-full w-full"
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
+                <span>
+                  Interactive 3.0 km SEAIT Radius Map • <strong className="text-emerald-700">{properties.length}</strong> boarding houses within scope
+                </span>
+                <button
+                  onClick={() => setViewMode('split')}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-colors"
+                >
+                  Switch to List View
+                </button>
+              </div>
+              <div className="h-[calc(100vh-220px)] min-h-[580px] w-full rounded-3xl overflow-hidden border border-slate-200 shadow-elevated">
+                <MapView
+                  properties={properties}
+                  selectedPropertyId={selectedPropertyId}
+                  onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
+                  radiusMeters={filters.radiusMeters}
+                  onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
+                  className="h-full w-full"
+                />
+              </div>
             </div>
           )}
         </div>
+      </div>
+
+      {/* Mobile Floating Map Toggle Pill (Always accessible on mobile / tablet) */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 lg:hidden pointer-events-auto">
+        <button
+          onClick={() => setViewMode(viewMode === 'map' ? 'grid' : 'map')}
+          className="px-5 py-3 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-2xl flex items-center space-x-2 border border-slate-700/80 backdrop-blur-md hover:bg-slate-800 active:scale-95 transition-all"
+        >
+          {viewMode === 'map' ? (
+            <>
+              <LayoutGrid className="w-4 h-4 text-emerald-400" />
+              <span>Show Listings List</span>
+            </>
+          ) : (
+            <>
+              <MapIcon className="w-4 h-4 text-emerald-400" />
+              <span>Show 3km Map ({properties.length})</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

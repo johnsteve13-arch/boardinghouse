@@ -18,7 +18,8 @@ import {
   Sparkles,
   Compass,
   ZoomIn,
-  ZoomOut
+  ZoomOut,
+  Maximize2
 } from 'lucide-react';
 
 interface MapViewProps {
@@ -37,6 +38,60 @@ interface MapViewProps {
 const SEAIT_LAT = 6.3648;
 const SEAIT_LNG = 124.9222;
 const MAX_BARRIER_RADIUS_METERS = 3000; // 3.0 km strict scope barrier
+
+// Prominent Crossing Rubber & SEAIT Campus Landmarks
+const KEY_LANDMARKS = [
+  {
+    id: 'landmark-seait',
+    name: 'SEAIT Main Entrance & Quadrangle',
+    category: 'campus',
+    lat: 6.3648,
+    lng: 124.9222,
+    icon: '🏫',
+    desc: 'Main Gates, Admin, Registrar & College Buildings',
+    badge: 'Campus Anchor'
+  },
+  {
+    id: 'landmark-crossing-terminal',
+    name: 'Crossing Rubber Tricycle & Habal-habal Terminal',
+    category: 'transport',
+    lat: 6.3662,
+    lng: 124.9211,
+    icon: '🛵',
+    desc: '24/7 direct rides to SEAIT gate (₱15–₱20 fare)',
+    badge: 'Transport Hub'
+  },
+  {
+    id: 'landmark-highway-crossing',
+    name: 'National Highway Crossing Rubber Junction',
+    category: 'transit',
+    lat: 6.3653,
+    lng: 124.9215,
+    icon: '🚌',
+    desc: 'Bus & Van drop-off from GenSan / Koronadal / Polomolok',
+    badge: 'Transit Stop'
+  },
+  {
+    id: 'landmark-market-eateries',
+    name: 'Crossing Rubber Market & Food Hub',
+    category: 'food',
+    lat: 6.3639,
+    lng: 124.9198,
+    icon: '🍲',
+    desc: 'Affordable student carinderias, grocery, water refilling',
+    badge: 'Food & Groceries'
+  },
+  {
+    id: 'landmark-barangay-hall',
+    name: 'Barangay Crossing Rubber Security Post',
+    category: 'security',
+    lat: 6.3675,
+    lng: 124.9235,
+    icon: '🛡️',
+    desc: 'Barangay police outpost, tanod night patrol post',
+    badge: 'Safe Zone'
+  }
+];
 
 /**
  * Generate geodesic polygon points for a circle around center coordinates
@@ -83,12 +138,13 @@ export default function MapView({
 }: MapViewProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
-  const tileLayerRef = useRef<any>(null);
+  const baseTileLayerRef = useRef<any>(null);
+  const labelsLayerRef = useRef<any>(null);
   const markersRef = useRef<{ [id: string]: any }>({});
   const overlayLayersRef = useRef<any[]>([]);
 
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>('streets');
+  const [mapStyle, setMapStyle] = useState<'streets' | 'satellite' | 'hybrid'>('streets');
   const [activeRadius, setActiveRadius] = useState<number>(Math.min(radiusMeters || 2000, MAX_BARRIER_RADIUS_METERS));
 
   // Sync internal radius state if prop updates
@@ -98,7 +154,7 @@ export default function MapView({
     }
   }, [radiusMeters]);
 
-  // 1. Initialize Leaflet Map with 3km Hard Bounds
+  // 1. Initialize Leaflet Map with 3km Hard Bounds and Resize Observer
   useEffect(() => {
     if (typeof window === 'undefined' || !mapContainerRef.current) return;
 
@@ -108,15 +164,6 @@ export default function MapView({
       if (!isMounted || !mapContainerRef.current) return;
 
       if (!mapInstanceRef.current) {
-        // Ensure Leaflet CSS is present
-        if (!document.getElementById('leaflet-css')) {
-          const link = document.createElement('link');
-          link.id = 'leaflet-css';
-          link.rel = 'stylesheet';
-          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          document.head.appendChild(link);
-        }
-
         // Compute 3.2km bounding box around SEAIT to lock panning strictly to Tupi
         const latMargin = 3250 / 111132;
         const lngMargin = 3250 / (111132 * Math.cos((SEAIT_LAT * Math.PI) / 180));
@@ -134,7 +181,7 @@ export default function MapView({
           zoomControl: false // Using custom sleek UI controls
         });
 
-        // Initial Streets Tile Layer (Clean CartoDB Voyager with OSM fallback)
+        // Default Street Layer (CartoDB Voyager)
         const streetTiles = L.tileLayer(
           'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
           {
@@ -145,10 +192,24 @@ export default function MapView({
           }
         );
         streetTiles.addTo(map);
-        tileLayerRef.current = streetTiles;
+        baseTileLayerRef.current = streetTiles;
 
         mapInstanceRef.current = map;
         setMapLoaded(true);
+
+        // Invalidate size immediately and after layout stabilization
+        setTimeout(() => map.invalidateSize(), 150);
+        setTimeout(() => map.invalidateSize(), 600);
+
+        // Attach ResizeObserver to container to guarantee full tile loading when toggling split/map view
+        if (window.ResizeObserver && mapContainerRef.current) {
+          const ro = new ResizeObserver(() => {
+            if (mapInstanceRef.current) {
+              mapInstanceRef.current.invalidateSize();
+            }
+          });
+          ro.observe(mapContainerRef.current);
+        }
       }
     });
 
@@ -161,7 +222,7 @@ export default function MapView({
     };
   }, []);
 
-  // 2. Handle Street / Satellite Style Switch
+  // 2. Handle Street / Satellite / Hybrid Style Switch
   useEffect(() => {
     if (!mapLoaded || !mapInstanceRef.current) return;
 
@@ -169,11 +230,18 @@ export default function MapView({
       const map = mapInstanceRef.current;
       if (!map) return;
 
-      if (tileLayerRef.current) {
-        map.removeLayer(tileLayerRef.current);
+      // Remove existing base tiles
+      if (baseTileLayerRef.current) {
+        map.removeLayer(baseTileLayerRef.current);
+        baseTileLayerRef.current = null;
+      }
+      if (labelsLayerRef.current) {
+        map.removeLayer(labelsLayerRef.current);
+        labelsLayerRef.current = null;
       }
 
-      if (mapStyle === 'satellite') {
+      if (mapStyle === 'satellite' || mapStyle === 'hybrid') {
+        // High-res Esri World Imagery (Satellite)
         const satTiles = L.tileLayer(
           'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
           {
@@ -182,8 +250,22 @@ export default function MapView({
           }
         );
         satTiles.addTo(map);
-        tileLayerRef.current = satTiles;
+        baseTileLayerRef.current = satTiles;
+
+        // Overlay clear street labels over satellite
+        const labelTiles = L.tileLayer(
+          'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png',
+          {
+            attribution: '',
+            maxZoom: 19,
+            subdomains: 'abcd',
+            opacity: 0.95
+          }
+        );
+        labelTiles.addTo(map);
+        labelsLayerRef.current = labelTiles;
       } else {
+        // CartoDB Voyager High Detail Streets
         const streetTiles = L.tileLayer(
           'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
           {
@@ -194,12 +276,12 @@ export default function MapView({
           }
         );
         streetTiles.addTo(map);
-        tileLayerRef.current = streetTiles;
+        baseTileLayerRef.current = streetTiles;
       }
     });
   }, [mapStyle, mapLoaded]);
 
-  // 3. Render 3.0 KM Barrier Mask, Concentric Rings & Property Markers
+  // 3. Render 3.0 KM Barrier Mask, Concentric Rings, Key Landmarks & Property Markers
   useEffect(() => {
     if (!mapLoaded || !mapInstanceRef.current) return;
 
@@ -207,7 +289,7 @@ export default function MapView({
       const map = mapInstanceRef.current;
       if (!map) return;
 
-      // Clean up previous overlay layers (rings, mask, barrier pills)
+      // Clean up previous overlay layers
       overlayLayersRef.current.forEach((layer) => map.removeLayer(layer));
       overlayLayersRef.current = [];
 
@@ -225,7 +307,7 @@ export default function MapView({
       // Shaded dark frosted barrier over everything outside 3.0 km
       const barrierMask = L.polygon([outerWorldRing, barrierHolePoints], {
         fillColor: '#020617', // Slate-950 dark frosted overlay
-        fillOpacity: mapStyle === 'satellite' ? 0.65 : 0.52,
+        fillOpacity: mapStyle === 'satellite' || mapStyle === 'hybrid' ? 0.68 : 0.52,
         stroke: false,
         interactive: false
       }).addTo(map);
@@ -394,7 +476,48 @@ export default function MapView({
       }
 
       // ==========================================
-      // D. SEAIT CAMPUS CENTER BEACON MARKER
+      // D. PROMINENT LOCAL LANDMARKS
+      // ==========================================
+      KEY_LANDMARKS.forEach((lm) => {
+        if (lm.id === 'landmark-seait') return; // Handled separately with radar beacon
+        const lmIcon = L.divIcon({
+          className: 'seait-landmark-marker',
+          html: `
+            <div style="
+              background: rgba(15, 23, 42, 0.9);
+              color: white;
+              border: 1.5px solid #38bdf8;
+              padding: 2.5px 7px;
+              border-radius: 9999px;
+              font-size: 9.5px;
+              font-weight: 800;
+              box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              white-space: nowrap;
+              cursor: pointer;
+            ">
+              <span>${lm.icon}</span>
+              <span>${lm.name}</span>
+            </div>
+          `,
+          iconSize: [0, 0]
+        });
+
+        const lmMarker = L.marker([lm.lat, lm.lng], { icon: lmIcon }).addTo(map);
+        lmMarker.bindPopup(`
+          <div style="padding: 4px; font-family: sans-serif; max-width: 200px;">
+            <div style="font-size: 10px; font-weight: 800; color: #0284c7; text-transform: uppercase;">${lm.badge}</div>
+            <div style="font-weight: 800; font-size: 12px; color: #0f172a; margin-top: 2px;">${lm.name}</div>
+            <div style="color: #64748b; font-size: 11px; margin-top: 3px;">${lm.desc}</div>
+          </div>
+        `);
+        overlayLayersRef.current.push(lmMarker);
+      });
+
+      // ==========================================
+      // E. SEAIT CAMPUS CENTER BEACON MARKER
       // ==========================================
       const campusBeaconIcon = L.divIcon({
         className: 'custom-campus-marker',
@@ -425,7 +548,7 @@ export default function MapView({
               cursor: pointer;
             ">
               <span style="width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 6px #34d399;"></span>
-              <span>🏫 SEAIT Campus (Center Anchor)</span>
+              <span>🏫 SEAIT Campus (Anchor)</span>
             </div>
           </div>
         `,
@@ -447,7 +570,7 @@ export default function MapView({
       overlayLayersRef.current.push(campusMarker);
 
       // ==========================================
-      // E. BOARDING HOUSE PROPERTY PINS (WITHIN 3KM)
+      // F. BOARDING HOUSE PROPERTY PINS (WITHIN 3KM)
       // ==========================================
       // Clear existing markers
       Object.values(markersRef.current).forEach((m: any) => map.removeLayer(m));
@@ -614,7 +737,7 @@ export default function MapView({
       {/* TOP-RIGHT MODERN FLOATING CONTROLS */}
       {showControls && (
         <div className="absolute top-3 right-3 z-[1000] flex flex-col items-end space-y-2">
-          {/* Map Layer Switcher: Streets vs Satellite */}
+          {/* Map Layer Switcher: Streets vs Satellite Hybrid */}
           <div className="bg-white/95 backdrop-blur-md p-1 rounded-2xl border border-slate-200/90 shadow-lg flex items-center space-x-1">
             <button
               type="button"
