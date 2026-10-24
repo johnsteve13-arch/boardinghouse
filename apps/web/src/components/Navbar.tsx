@@ -144,14 +144,8 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center space-x-2">
                 <Link
-                  href={
-                    user.role === 'admin'
-                      ? '/dashboard/admin'
-                      : user.role === 'owner'
-                      ? '/dashboard/owner'
-                      : '/dashboard/student'
-                  }
-                  className="flex items-center space-x-2 pl-1 pr-3 py-1 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors text-xs font-semibold shadow-xs"
+                  href={user.role === 'admin' ? '/dashboard/admin' : '/dashboard/owner'}
+                  className="flex items-center space-x-2 pl-1.5 pr-3.5 py-1.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors text-xs font-semibold shadow-xs"
                 >
                   {user.avatarUrl ? (
                     <img
@@ -168,7 +162,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/logout"
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -178,16 +172,16 @@ export default function Navbar() {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/login/owner"
-                  className="px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50/80 text-amber-900 font-semibold text-xs hover:bg-amber-100 transition-all flex items-center space-x-1"
+                  className="px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50/80 text-amber-900 font-semibold text-xs hover:bg-amber-100 transition-all flex items-center space-x-1.5"
                 >
                   <Home className="w-3.5 h-3.5 text-amber-700" />
                   <span>Owner Portal</span>
                 </Link>
                 <Link
-                  href="/login"
-                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all"
+                  href="/register"
+                  className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold text-xs hover:bg-emerald-700 shadow-sm shadow-emerald-600/20 transition-all"
                 >
-                  Sign In
+                  List Property
                 </Link>
               </div>
             )}
@@ -236,17 +230,11 @@ export default function Navbar() {
             {user ? (
               <div className="space-y-2">
                 <Link
-                  href={
-                    user.role === 'admin'
-                      ? '/dashboard/admin'
-                      : user.role === 'owner'
-                      ? '/dashboard/owner'
-                      : '/dashboard/student'
-                  }
+                  href={user.role === 'admin' ? '/dashboard/admin' : '/dashboard/owner'}
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 shadow-sm"
                 >
-                  Open Dashboard ({user.role})
+                  Open Dashboard
                 </Link>
                 <Link
                   href="/logout"
@@ -260,18 +248,18 @@ export default function Navbar() {
             ) : (
               <div className="space-y-2">
                 <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 shadow-sm"
-                >
-                  Student Sign In
-                </Link>
-                <Link
                   href="/login/owner"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 font-semibold text-xs hover:bg-amber-100"
                 >
-                  Owner Portal
+                  Owner Portal & Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 shadow-sm"
+                >
+                  List Your Property (Owner)
                 </Link>
               </div>
             )}

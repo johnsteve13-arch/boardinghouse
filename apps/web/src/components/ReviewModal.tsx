@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Star, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { X, Star, ShieldCheck, CheckCircle2, User as UserIcon } from 'lucide-react';
 import { BoardingHouse } from '@seait-stay/types';
 import { useAuth } from '../lib/authContext';
 import { api } from '../lib/api';
@@ -21,6 +21,7 @@ export default function ReviewModal({
 }: ReviewModalProps) {
   const { user } = useAuth();
 
+  const [tenantName, setTenantName] = useState(user?.fullName || '');
   const [overallRating, setOverallRating] = useState(5);
   const [cleanliness, setCleanliness] = useState(5);
   const [location, setLocation] = useState(5);
@@ -41,8 +42,8 @@ export default function ReviewModal({
       return;
     }
 
-    if (!user) {
-      setError('You must be signed in as a student to write a review.');
+    if (!user && !tenantName.trim()) {
+      setError('Please provide your name as the reviewer.');
       return;
     }
 
@@ -58,7 +59,8 @@ export default function ReviewModal({
         valueRating: value,
         safetyRating: safety,
         ownerResponsivenessRating: responsiveness,
-        comment
+        comment,
+        tenantName: tenantName.trim() || undefined
       });
       setSuccess(true);
       if (onReviewSubmitted) onReviewSubmitted();
@@ -98,7 +100,7 @@ export default function ReviewModal({
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center space-x-2">
             <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
-            <h3 className="font-bold text-base text-slate-900">Write a Verified Review</h3>
+            <h3 className="font-bold text-base text-slate-900">Write a Tenant Review</h3>
           </div>
           <button
             onClick={onClose}
@@ -115,7 +117,7 @@ export default function ReviewModal({
             </div>
             <h4 className="font-bold text-lg text-slate-900">Review Published!</h4>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Thank you for helping fellow SEAIT students make informed accommodation decisions.
+              Thank you for helping fellow tenants make informed boarding house decisions.
             </p>
             <button
               onClick={onClose}
@@ -129,10 +131,27 @@ export default function ReviewModal({
             <div className="flex items-center justify-between p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60 text-xs">
               <div className="flex items-center space-x-2 text-emerald-900">
                 <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span className="font-semibold">Reviewing: {property.name}</span>
+                <span className="font-semibold truncate">Reviewing: {property.name}</span>
               </div>
-              <span className="text-[10px] text-emerald-700 font-mono">SEAIT Verified</span>
+              <span className="text-[10px] text-emerald-700 font-mono shrink-0">Crossing Rubber</span>
             </div>
+
+            {!user && (
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Your Name *</label>
+                <div className="relative">
+                  <UserIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    value={tenantName}
+                    onChange={(e) => setTenantName(e.target.value)}
+                    placeholder="e.g. Maria Santos (Tenant)"
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Overall Rating Selection */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -170,13 +189,13 @@ export default function ReviewModal({
             {/* Comment */}
             <div>
               <label className="text-xs font-bold text-slate-700 block mb-1">
-                Your Review & Advice for SEAIT Students
+                Your Review & Advice for Tenants
               </label>
               <textarea
-                rows={4}
+                rows={3}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="Share your stay experience: noise levels, Wi-Fi speed, water pressure, walking experience to SEAIT campus..."
+                placeholder="Share your stay experience: quiet hours, Wi-Fi speed, water pressure, walking distance to SEAIT..."
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
               />
             </div>

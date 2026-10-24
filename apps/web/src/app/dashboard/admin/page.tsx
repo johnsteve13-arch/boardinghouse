@@ -119,7 +119,7 @@ export default function AdminDashboardPage() {
             <div className="flex items-center space-x-2">
               <h1 className="text-2xl font-black text-white">SEAIT Stay Administration</h1>
               <span className="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/30 text-[10px] font-bold">
-                Student Housing Oversight
+                Tenant Housing Oversight
               </span>
             </div>
             <p className="text-xs text-purple-200">
@@ -164,7 +164,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Users</span>
             <p className="text-2xl font-black text-slate-900">{stats.totalUsers}</p>
-            <p className="text-[11px] text-slate-500">{stats.totalStudents} Students • {stats.totalOwners} Owners</p>
+            <p className="text-[11px] text-slate-500">{stats.totalStudents} Tenants • {stats.totalOwners} Owners</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
@@ -390,7 +390,7 @@ export default function AdminDashboardPage() {
 
             <div>
               <label className="font-bold text-slate-700 block mb-1">
-                Default Student Search Radius (km)
+                Default Search Radius (km)
               </label>
               <input
                 type="number"

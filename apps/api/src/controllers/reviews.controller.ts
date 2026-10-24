@@ -12,7 +12,9 @@ const reviewSchema = z.object({
   valueRating: z.number().min(1).max(5),
   safetyRating: z.number().min(1).max(5),
   ownerResponsivenessRating: z.number().min(1).max(5),
-  comment: z.string().min(10)
+  comment: z.string().min(10),
+  tenantName: z.string().optional(),
+  tenantDepartment: z.string().optional()
 });
 
 const ownerReplySchema = z.object({
@@ -51,22 +53,22 @@ export async function getOwnerReviews(req: AuthRequest, res: Response, next: Nex
 
 export async function submitReview(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });
-    if (req.user.role !== 'student' && req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, error: 'Only verified students can submit reviews' });
-    }
-
     const data = reviewSchema.parse(req.body);
     const house = store.findBoardingHouseById(data.boardingHouseId);
     if (!house) return res.status(404).json({ success: false, error: 'Boarding house not found' });
 
+    const tenantId = req.user?.id || `guest-tenant-${Date.now()}`;
+    const tenantName = req.user?.fullName || data.tenantName || 'Verified Tenant';
+    const tenantAvatar = req.user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100';
+    const tenantDept = req.user?.department || data.tenantDepartment || 'SEAIT Tenant';
+
     const newReview: Review = {
       id: `rev-${Date.now()}`,
       boardingHouseId: house.id,
-      studentId: req.user.id,
-      studentName: req.user.fullName,
-      studentAvatar: req.user.avatarUrl,
-      studentDepartment: req.user.department,
+      studentId: tenantId,
+      studentName: tenantName,
+      studentAvatar: tenantAvatar,
+      studentDepartment: tenantDept,
       isStayVerified: true,
       overallRating: data.overallRating,
       cleanlinessRating: data.cleanlinessRating,
@@ -84,8 +86,8 @@ export async function submitReview(req: AuthRequest, res: Response, next: NextFu
     store.addNotification({
       id: `notif-${Date.now()}`,
       userId: house.ownerId,
-      title: `New student review for ${house.name}`,
-      message: `${req.user.fullName} gave a ${data.overallRating}★ review: "${data.comment.slice(0, 50)}..."`,
+      title: `New tenant review for ${house.name}`,
+      message: `${tenantName} gave a ${data.overallRating}★ review: "${data.comment.slice(0, 50)}..."`,
       type: 'review',
       linkUrl: `/boarding-houses/${house.slug}`,
       isRead: false,

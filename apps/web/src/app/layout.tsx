@@ -15,8 +15,9 @@ export const metadata: Metadata = {
     'Tupi South Cotabato',
     'Crossing Rubber',
     'boarding house',
-    'student dormitory',
-    'student accommodation'
+    'dormitory',
+    'tenant accommodation',
+    'student and tenant housing'
   ]
 };
 

@@ -186,7 +186,7 @@ export default function PropertyDetailsPage() {
               <span className="flex items-center space-x-1 font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
                 <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                 <span>{property.ratingAverage}</span>
-                <span className="text-slate-400 font-normal">({property.ratingCount} student reviews)</span>
+                <span className="text-slate-400 font-normal">({property.ratingCount} tenant reviews)</span>
               </span>
             )}
           </div>
@@ -471,13 +471,13 @@ export default function PropertyDetailsPage() {
             </div>
           </div>
 
-          {/* Student Reviews & Ratings Section (Requirement 20) */}
+          {/* Tenant Reviews & Ratings Section */}
           <div className="space-y-6 pt-4 border-t border-slate-200">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Student Reviews</h2>
+                <h2 className="text-lg font-bold text-slate-900">Tenant Reviews</h2>
                 <p className="text-xs text-slate-500">
-                  Reviews from verified SEAIT students who stayed at this boarding house.
+                  Reviews from verified tenants who stayed at this boarding house.
                 </p>
               </div>
 
@@ -491,8 +491,8 @@ export default function PropertyDetailsPage() {
 
             {reviews.length === 0 ? (
               <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
-                <p className="text-xs font-semibold text-slate-600">No student reviews yet for this listing.</p>
-                <p className="text-[11px] text-slate-400">Be the first SEAIT tenant to leave your feedback.</p>
+                <p className="text-xs font-semibold text-slate-600">No tenant reviews yet for this listing.</p>
+                <p className="text-[11px] text-slate-400">Be the first tenant to leave your feedback.</p>
               </div>
             ) : (
               <div className="space-y-4">

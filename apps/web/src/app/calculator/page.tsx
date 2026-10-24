@@ -21,13 +21,13 @@ export default function CalculatorPage() {
       <div className="max-w-3xl">
         <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">
           <Calculator className="w-3.5 h-3.5" />
-          <span>Student Financial Assistant</span>
+          <span>Tenant Financial Assistant</span>
         </div>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-          SEAIT Student Living Expense & Boarding Calculator
+          SEAIT Tenant Living Expense & Boarding Calculator
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
-          Planning your semester budget in Crossing Rubber, Tupi? Use our dynamic calculator to estimate
+          Planning your stay and budget in Crossing Rubber, Tupi? Use our dynamic calculator to estimate
           your monthly room rent, electricity share, water, commute fare, meals, and laundry.
         </p>
       </div>

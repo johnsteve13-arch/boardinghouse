@@ -8,7 +8,10 @@ const createInquirySchema = z.object({
   boardingHouseId: z.string(),
   roomInterest: z.string().optional(),
   targetMoveInDate: z.string().optional(),
-  initialMessage: z.string().min(3)
+  initialMessage: z.string().min(3),
+  tenantName: z.string().optional(),
+  tenantContact: z.string().optional(),
+  tenantEmail: z.string().optional()
 });
 
 const replyInquirySchema = z.object({
@@ -17,19 +20,22 @@ const replyInquirySchema = z.object({
 
 export async function createInquiry(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });
-
     const data = createInquirySchema.parse(req.body);
     const house = store.findBoardingHouseById(data.boardingHouseId);
     if (!house) return res.status(404).json({ success: false, error: 'Boarding house not found' });
+
+    const tenantId = req.user?.id || `guest-tenant-${Date.now()}`;
+    const tenantName = req.user?.fullName || data.tenantName || 'Prospective Tenant';
+    const tenantEmail = req.user?.email || data.tenantEmail || 'tenant@crossingrubber.com';
+    const tenantPhone = req.user?.phone || data.tenantContact || 'Direct Inquiry';
 
     const inquiryId = `inq-${Date.now()}`;
     const initialMessage = {
       id: `msg-${Date.now()}`,
       inquiryId,
-      senderId: req.user.id,
-      senderName: req.user.fullName,
-      senderRole: req.user.role,
+      senderId: tenantId,
+      senderName: tenantName,
+      senderRole: (req.user?.role || 'tenant') as any,
       message: data.initialMessage,
       createdAt: new Date().toISOString()
     };
@@ -39,10 +45,10 @@ export async function createInquiry(req: AuthRequest, res: Response, next: NextF
       boardingHouseId: house.id,
       boardingHouseName: house.name,
       boardingHouseCover: house.coverImage,
-      studentId: req.user.id,
-      studentName: req.user.fullName,
-      studentEmail: req.user.email,
-      studentPhone: req.user.phone,
+      studentId: tenantId,
+      studentName: tenantName,
+      studentEmail: tenantEmail,
+      studentPhone: tenantPhone,
       ownerId: house.ownerId,
       roomInterest: data.roomInterest,
       targetMoveInDate: data.targetMoveInDate,
@@ -59,8 +65,8 @@ export async function createInquiry(req: AuthRequest, res: Response, next: NextF
     store.addNotification({
       id: `notif-${Date.now()}`,
       userId: house.ownerId,
-      title: `New Inquiry for ${house.name}`,
-      message: `${req.user.fullName} asked: "${data.initialMessage.slice(0, 60)}..."`,
+      title: `New Tenant Inquiry for ${house.name}`,
+      message: `${tenantName} (${tenantPhone}): "${data.initialMessage.slice(0, 60)}..."`,
       type: 'inquiry',
       linkUrl: `/inquiries`,
       isRead: false,

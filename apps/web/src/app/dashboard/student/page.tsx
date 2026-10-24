@@ -59,10 +59,12 @@ export default function StudentDashboardPage() {
   if (!user) {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-slate-800">Please Sign In</h2>
-        <p className="text-xs text-slate-500">Sign in as a student to access your personal dashboard.</p>
-        <Link href="/login" className="inline-block px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs">
-          Sign In
+        <h2 className="text-xl font-bold text-slate-800">Tenant Direct Access</h2>
+        <p className="text-xs text-slate-500">
+          As a tenant, you do not need to register or sign in to explore and inquire about boarding houses!
+        </p>
+        <Link href="/browse" className="inline-block px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs">
+          Browse Boarding Houses
         </Link>
       </div>
     );
@@ -82,7 +84,7 @@ export default function StudentDashboardPage() {
             <div className="flex items-center space-x-2">
               <h1 className="text-2xl font-black text-white">{user.fullName}</h1>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold">
-                SEAIT Student
+                SEAIT Tenant
               </span>
             </div>
             <p className="text-xs text-emerald-100 flex items-center space-x-1.5">
@@ -179,7 +181,7 @@ export default function StudentDashboardPage() {
                   Recommended For You
                 </h2>
               </div>
-              <span className="text-xs text-slate-400">Based on your student budget & distance</span>
+              <span className="text-xs text-slate-400">Based on your tenant budget & distance</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

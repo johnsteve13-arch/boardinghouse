@@ -90,8 +90,11 @@ export default function HomePage() {
 
             {/* Subtitle */}
             <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Discover verified boarding houses, dormitories, and student pads within walking distance of
+              Discover verified boarding houses, dormitories, and tenant rooms within walking distance of
               South East Asian Institute of Technology in Crossing Rubber, Tupi, South Cotabato.
+              <span className="block mt-1 text-emerald-300 font-medium text-xs">
+                ✨ Free direct access for tenants — no registration or login required to search & inquire!
+              </span>
             </p>
           </div>
 
@@ -211,7 +214,7 @@ export default function HomePage() {
               Featured Boarding Houses Near SEAIT
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Verified safe accommodations with verified student reviews in Crossing Rubber, Tupi.
+              Verified safe accommodations with verified tenant reviews in Crossing Rubber, Tupi.
             </p>
           </div>
 
@@ -235,7 +238,7 @@ export default function HomePage() {
             <Building className="w-12 h-12 text-slate-300 mx-auto" />
             <h3 className="font-bold text-base text-slate-800">No Boarding Houses Listed Yet</h3>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Are you a boarding house owner in Crossing Rubber, Tupi? List your property to be featured in the SEAIT student accommodation directory.
+              Are you a boarding house owner in Crossing Rubber, Tupi? List your property to be featured in the SEAIT tenant accommodation directory.
             </p>
             <Link
               href="/dashboard/owner"
@@ -291,11 +294,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Why SEAIT Students Trust SEAIT Stay
+              Why SEAIT Tenants Trust SEAIT Stay
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-2">
               Unlike generic property sites, SEAIT Stay is purpose-built for the unique needs of
-              students living in Tupi, South Cotabato.
+              tenants living in Tupi, South Cotabato.
             </p>
           </div>
 
@@ -337,7 +340,7 @@ export default function HomePage() {
               </div>
               <h3 className="font-bold text-sm text-slate-900">Zero Middleman Fees</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Students communicate directly with legit boarding house owners with no booking markups or commission charges.
+                Tenants communicate directly with legit boarding house owners with no booking markups or commission charges.
               </p>
             </div>
           </div>
@@ -351,7 +354,7 @@ export default function HomePage() {
             How to Find Your SEAIT Boarding House
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-2">
-            Four simple steps to secure safe, affordable student accommodation in Crossing Rubber.
+            Four simple steps to secure safe, affordable tenant accommodation in Crossing Rubber.
           </p>
         </div>
 
@@ -375,7 +378,7 @@ export default function HomePage() {
             {
               step: '04',
               title: 'Move In Confidently',
-              desc: 'Move into verified, safe student housing with peace of mind throughout your semester.'
+              desc: 'Move into verified, safe tenant housing with peace of mind throughout your stay.'
             }
           ].map((item, idx) => (
             <div key={item.step} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs relative">
@@ -389,19 +392,19 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. STUDENT BUDGET CALCULATOR SECTION */}
+      {/* 6. TENANT BUDGET CALCULATOR SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <BudgetCalculatorWidget boardingHouses={properties} />
       </section>
 
-      {/* 7. STUDENT TESTIMONIALS */}
+      {/* 7. TENANT TESTIMONIALS */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            What SEAIT Scholars Say
+            What SEAIT Tenants Say
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-2">
-            Verified experiences from students across colleges in South East Asian Institute of Technology.
+            Verified experiences from tenants living near South East Asian Institute of Technology.
           </p>
         </div>
 
@@ -482,10 +485,10 @@ export default function HomePage() {
               For Boarding House Owners in Tupi
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug">
-              Own a Boarding House Near SEAIT? Reach Hundreds of Verified Students.
+              Own a Boarding House Near SEAIT? Reach Hundreds of Verified Tenants.
             </h2>
             <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
-              List your property on SEAIT Stay, receive student inquiries directly on your phone, and manage room availability in one simple dashboard.
+              List your property on SEAIT Stay, receive tenant inquiries directly on your phone, and manage room availability in one simple dashboard.
             </p>
           </div>
 

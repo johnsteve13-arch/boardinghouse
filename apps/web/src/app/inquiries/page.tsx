@@ -81,7 +81,7 @@ export default function InquiriesPage() {
         <MessageSquare className="w-12 h-12 text-slate-300 mx-auto" />
         <h2 className="text-xl font-bold text-slate-900">Sign in to View Inquiries</h2>
         <p className="text-xs text-slate-500">
-          You must be logged in as a student or owner to communicate regarding boarding house listings.
+          You must be logged in as an owner or administrator to manage inbox inquiries.
         </p>
         <Link
           href="/login"
@@ -174,7 +174,7 @@ export default function InquiriesPage() {
                   </h3>
                   <p className="text-[11px] text-slate-500">
                     {user.role === 'owner'
-                      ? `Student: ${activeInquiry.studentName} (${activeInquiry.studentEmail})`
+                      ? `Tenant: ${activeInquiry.studentName} (${activeInquiry.studentEmail})`
                       : `Inquiry with Property Owner`}
                     {activeInquiry.roomInterest && ` • Room: ${activeInquiry.roomInterest}`}
                   </p>

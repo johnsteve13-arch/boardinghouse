@@ -121,7 +121,7 @@ export default function ComparePage() {
           }
         },
         {
-          label: 'Student Rating',
+          label: 'Tenant Rating',
           render: (p: BoardingHouse) => (
             <div className="flex items-center space-x-1 text-xs">
               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />

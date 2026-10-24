@@ -22,8 +22,8 @@ export default function Footer() {
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed pr-6">
-              The premier, verified boarding house and student accommodation finder platform dedicated
-              exclusively to the campus community of South East Asian Institute of Technology (SEAIT) in
+              The premier, verified boarding house and tenant accommodation finder platform dedicated
+              exclusively to the community of South East Asian Institute of Technology (SEAIT) in
               Crossing Rubber, Tupi, South Cotabato, Philippines.
             </p>
 
@@ -34,7 +34,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>SEAIT Student Housing Helpdesk: (083) 228-1234</span>
+                <span>SEAIT Housing Helpdesk: (083) 228-1234</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -43,9 +43,9 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links for Students */}
+          {/* Quick Links for Tenants */}
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">For Students</h4>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider mb-4">For Tenants</h4>
             <ul className="space-y-2 text-xs">
               <li>
                 <Link href="/browse" className="hover:text-emerald-400 transition-colors">
@@ -68,9 +68,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/dashboard/student" className="hover:text-emerald-400 transition-colors">
-                  Student Portal
-                </Link>
+                <span className="text-[11px] text-emerald-400/80 font-medium">
+                  ✓ No account needed to browse
+                </span>
               </li>
             </ul>
           </div>
@@ -127,7 +127,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} SEAIT Stay. All rights reserved. Designed for South East Asian Institute of Technology students.</p>
+          <p>© {new Date().getFullYear()} SEAIT Stay. All rights reserved. Designed for South East Asian Institute of Technology tenants and residents.</p>
           <div className="flex items-center space-x-6 mt-4 sm:mt-0">
             <span className="flex items-center space-x-1">
               <span>Made with</span>

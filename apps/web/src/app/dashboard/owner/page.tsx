@@ -92,13 +92,13 @@ export default function OwnerDashboardPage() {
     { id: 'aircon', label: 'Air Conditioning' },
     { id: 'study_area', label: 'Quiet Study Lounge' },
     { id: 'generator', label: 'Generator Back-up' },
-    { id: 'no_curfew', label: 'No Curfew for Working Students' }
+    { id: 'no_curfew', label: 'No Curfew for Working Tenants' }
   ];
 
   const imagePresets = [
     { label: 'Modern Dorm Exterior', url: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800' },
     { label: 'Cozy Compound Garden', url: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800' },
-    { label: 'Clean Student Residence', url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800' },
+    { label: 'Clean Tenant Residence', url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800' },
     { label: 'Townhouse Style Residence', url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800' }
   ];
 
@@ -230,7 +230,7 @@ export default function OwnerDashboardPage() {
     );
   };
 
-  // Reply to Student Review Handler
+  // Reply to Tenant Review Handler
   const handleReplySubmit = async (reviewId: string) => {
     const text = replyTextMap[reviewId]?.trim();
     if (!text) return;
@@ -241,7 +241,7 @@ export default function OwnerDashboardPage() {
         setReviews((prev) => prev.map((r) => (r.id === reviewId ? updated : r)));
         setEditingReplyId(null);
         setReplyTextMap((prev) => ({ ...prev, [reviewId]: '' }));
-        setNotice('Reply posted to student review.');
+        setNotice('Reply posted to tenant review.');
         setTimeout(() => setNotice(null), 3500);
       }
     } catch (err: any) {
@@ -399,7 +399,7 @@ export default function OwnerDashboardPage() {
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Available Slots</span>
           <p className="text-2xl font-black text-emerald-600">{totalSlots} open</p>
-          <p className="text-[11px] text-slate-500">Ready for SEAIT students</p>
+          <p className="text-[11px] text-slate-500">Ready for SEAIT tenants</p>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1 cursor-pointer hover:border-amber-300 transition-all" onClick={() => setActiveTab('reviews')}>
@@ -416,9 +416,9 @@ export default function OwnerDashboardPage() {
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Student Messages</span>
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tenant Messages</span>
           <Link href="/inquiries" className="text-sm font-extrabold text-emerald-700 hover:underline block mt-1">
-            Open Student Inbox →
+            Open Tenant Inbox →
           </Link>
           <p className="text-[11px] text-slate-500">Live inquiry messenger</p>
         </div>
@@ -431,7 +431,7 @@ export default function OwnerDashboardPage() {
             <div>
               <h2 className="text-lg font-black text-slate-900">Your Boarding Houses</h2>
               <p className="text-xs text-slate-500">
-                Manage your properties, real-time availability slots, and student visibility around SEAIT.
+                Manage your properties, real-time availability slots, and tenant visibility around SEAIT.
               </p>
             </div>
             <button
@@ -450,7 +450,7 @@ export default function OwnerDashboardPage() {
               <Building className="w-12 h-12 text-slate-300 mx-auto" />
               <h3 className="font-bold text-base text-slate-800">No properties listed yet</h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Add your boarding house in Crossing Rubber, Tupi to start receiving student inquiries.
+                Add your boarding house in Crossing Rubber, Tupi to start receiving tenant inquiries.
               </p>
               <button
                 onClick={() => setActiveTab('add_house')}
@@ -489,7 +489,7 @@ export default function OwnerDashboardPage() {
                                 setActiveTab('reviews');
                               }}
                               className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold flex items-center space-x-1 hover:bg-amber-100 transition-colors"
-                              title="Click to view ratings & student reviews"
+                              title="Click to view ratings & tenant reviews"
                             >
                               <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
                               <span>{prop.ratingAverage ? prop.ratingAverage.toFixed(1) : '5.0'}</span>
@@ -635,7 +635,7 @@ export default function OwnerDashboardPage() {
               </div>
               <h2 className="text-lg font-black text-slate-900">Add Boarding House</h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                Targeted for SEAIT students in Crossing Rubber, Tupi, South Cotabato.
+                Targeted for SEAIT tenants in Crossing Rubber, Tupi, South Cotabato.
               </p>
             </div>
             <button
@@ -860,13 +860,13 @@ export default function OwnerDashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center space-x-2">
-                <span>Ratings & Student Feedback</span>
+                <span>Ratings & Tenant Feedback</span>
                 <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
                   {reviews.length} Verified Reviews
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                View student evaluations across all criteria and reply as a verified property owner.
+                View tenant evaluations across all criteria and reply as a verified property owner.
               </p>
             </div>
 
@@ -893,7 +893,7 @@ export default function OwnerDashboardPage() {
             {/* Big Overall Rating Score */}
             <div className="space-y-2 text-center md:text-left border-b md:border-b-0 md:border-r border-slate-700/80 pb-6 md:pb-0 md:pr-6">
               <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">
-                Overall Student Score
+                Overall Tenant Score
               </span>
               <div className="flex items-center justify-center md:justify-start space-x-3">
                 <span className="text-5xl font-black text-white">{avgRating}</span>
@@ -972,7 +972,7 @@ export default function OwnerDashboardPage() {
           {/* Reviews List */}
           <div className="space-y-4">
             <h3 className="font-black text-slate-900 text-sm">
-              Student Reviews ({displayedReviews.length})
+              Tenant Reviews ({displayedReviews.length})
             </h3>
 
             {displayedReviews.length === 0 ? (
@@ -993,7 +993,7 @@ export default function OwnerDashboardPage() {
                     key={rev.id}
                     className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 hover:shadow-sm transition-shadow"
                   >
-                    {/* Review Header: Student & Rating */}
+                    {/* Review Header: Tenant & Rating */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex items-center space-x-3">
                         <img
@@ -1012,7 +1012,7 @@ export default function OwnerDashboardPage() {
                             )}
                           </div>
                           <p className="text-[11px] text-slate-500">
-                            {rev.studentDepartment || 'SEAIT Student'} • Reviewed {new Date(rev.createdAt).toLocaleDateString()}
+                            {rev.studentDepartment || 'SEAIT Tenant'} • Reviewed {new Date(rev.createdAt).toLocaleDateString()}
                           </p>
                           {targetHouse && (
                             <span className="text-[11px] font-semibold text-emerald-700">
@@ -1099,7 +1099,7 @@ export default function OwnerDashboardPage() {
                               onChange={(e) =>
                                 setReplyTextMap((prev) => ({ ...prev, [rev.id]: e.target.value }))
                               }
-                              placeholder="Thank the student or address their feedback directly..."
+                              placeholder="Thank the tenant or address their feedback directly..."
                               className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
                             />
                             <div className="flex justify-end space-x-2">
@@ -1130,7 +1130,7 @@ export default function OwnerDashboardPage() {
                             className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center space-x-1"
                           >
                             <MessageCircle className="w-3.5 h-3.5" />
-                            <span>Reply to this student review →</span>
+                            <span>Reply to this tenant review →</span>
                           </button>
                         )}
                       </div>
@@ -1168,7 +1168,7 @@ export default function OwnerDashboardPage() {
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 {user.isVerified
                   ? 'Your credentials have been checked and approved by the SEAIT Administrator. Your listings display the verified badge.'
-                  : 'Your documents have been submitted to the SEAIT Student Housing Desk for review.'}
+                  : 'Your documents have been submitted to the SEAIT Housing Desk for review.'}
               </p>
             </div>
           ) : (
@@ -1255,7 +1255,7 @@ export default function OwnerDashboardPage() {
               <h3 className="text-lg font-black text-slate-900">Remove Boarding House Listing?</h3>
               <p className="text-xs text-slate-500 leading-relaxed">
                 Are you sure you want to delete <strong className="text-slate-900 font-bold">{deleteModalHouse.name}</strong>?
-                This will permanently delist the property and remove all associated room slots from the SEAIT student portal.
+                This will permanently delist the property and remove all associated room slots from the SEAIT tenant directory.
               </p>
             </div>
 

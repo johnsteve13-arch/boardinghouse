@@ -43,7 +43,7 @@ export default function OwnerLoginPage() {
         );
         setTimeout(() => {
           if (loggedUser.role === 'admin') router.push('/dashboard/admin');
-          else router.push('/dashboard/student');
+          else router.push('/browse');
         }, 3000);
         return;
       }
@@ -75,7 +75,7 @@ export default function OwnerLoginPage() {
               Boarding House Owner Login
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-              Sign in to manage your Crossing Rubber listings, toggle instant room availability, update monthly rental rates, and connect with SEAIT students.
+              Sign in to manage your Crossing Rubber listings, toggle instant room availability, update monthly rental rates, and connect with SEAIT tenants.
             </p>
           </div>
 
@@ -166,7 +166,7 @@ export default function OwnerLoginPage() {
             </div>
             <div className="flex items-center space-x-2 text-[11px]">
               <Users className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Direct Student Inquiries</span>
+              <span>Direct Tenant Inquiries</span>
             </div>
             <div className="flex items-center space-x-2 text-[11px]">
               <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
@@ -178,14 +178,14 @@ export default function OwnerLoginPage() {
           <div className="text-center text-xs text-slate-500 space-y-2 pt-2">
             <p>
               Want to list a new boarding house near SEAIT?{' '}
-              <Link href="/register?role=owner" className="font-bold text-emerald-700 hover:underline">
+              <Link href="/register" className="font-bold text-emerald-700 hover:underline">
                 Register as Property Owner
               </Link>
             </p>
             <p>
-              Are you a student looking for a room?{' '}
-              <Link href="/login" className="font-semibold text-slate-700 hover:text-slate-900 underline">
-                Go to Student Login
+              Looking for a boarding house or room?{' '}
+              <Link href="/browse" className="font-semibold text-emerald-700 hover:text-emerald-800 underline">
+                Browse Listings (No Account Required)
               </Link>
             </p>
           </div>

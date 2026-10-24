@@ -39,7 +39,7 @@ export default function BudgetCalculatorWidget({
       setWater(house.waterIncluded ? 0 : 150);
       setElectricity(house.electricityIncluded ? 0 : 350);
       setInternet(house.internetIncluded ? 0 : 250);
-      // If walking distance is under 600m, commute is ₱0 because students can walk!
+      // If walking distance is under 600m, commute is ₱0 because tenants can walk!
       if (house.distanceFromSeaitMeters <= 600) {
         setDailyCommute(0);
       } else {
@@ -71,7 +71,7 @@ export default function BudgetCalculatorWidget({
             <span className="text-xs font-bold uppercase tracking-wider">Financial Planning</span>
           </div>
           <h3 className="font-extrabold text-xl text-slate-900">
-            SEAIT Student Monthly Budget Calculator
+            SEAIT Tenant Monthly Budget Calculator
           </h3>
           <p className="text-xs text-slate-500 mt-1">
             Estimate your true total living expenses per month including rent, utilities, commute, and meals.

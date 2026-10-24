@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Heart,
@@ -39,6 +39,18 @@ export default function PropertyCard({
   const [isFavorited, setIsFavorited] = useState(isFavoritedInitial);
   const [isHovered, setIsHovered] = useState(false);
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('seait_tenant_favorites');
+      if (stored) {
+        const favs = JSON.parse(stored);
+        if (Array.isArray(favs) && favs.includes(property.id)) {
+          setIsFavorited(true);
+        }
+      }
+    } catch {}
+  }, [property.id]);
+
   const compared = isInCompare(property.id);
   const availability = getAvailabilityInfo(property.availabilityStatus);
   const gender = getGenderPolicyInfo(property.genderPolicy);
@@ -47,21 +59,25 @@ export default function PropertyCard({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user) {
-      alert('Please log in as a student to save favorites.');
-      return;
+    const nextFav = !isFavorited;
+    setIsFavorited(nextFav);
+
+    // Persist in tenant local storage
+    try {
+      const stored = localStorage.getItem('seait_tenant_favorites');
+      const favs: string[] = stored ? JSON.parse(stored) : [];
+      const updated = nextFav ? [...new Set([...favs, property.id])] : favs.filter((id) => id !== property.id);
+      localStorage.setItem('seait_tenant_favorites', JSON.stringify(updated));
+    } catch {}
+
+    if (user) {
+      try {
+        await api.toggleFavorite(property.id);
+      } catch {}
     }
 
-    try {
-      const res = await api.toggleFavorite(property.id);
-      if (res) {
-        setIsFavorited(res.isFavorited);
-        if (onFavoriteChange) {
-          onFavoriteChange(property.id, res.isFavorited);
-        }
-      }
-    } catch {
-      setIsFavorited(!isFavorited);
+    if (onFavoriteChange) {
+      onFavoriteChange(property.id, nextFav);
     }
   };
 
