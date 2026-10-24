@@ -97,7 +97,8 @@ class MemoryStore {
   }
 
   findUserByEmail(email: string): User | undefined {
-    return this.state.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    const cleanEmail = (email || '').trim().toLowerCase();
+    return this.state.users.find((u) => (u.email || '').trim().toLowerCase() === cleanEmail);
   }
 
   addUser(user: User, passwordHash: string): User {

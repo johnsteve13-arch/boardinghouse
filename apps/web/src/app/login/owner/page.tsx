@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -11,10 +11,10 @@ import {
   ShieldCheck,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   Eye,
   EyeOff,
   Building2,
-  Sparkles,
   Zap,
   Users
 } from 'lucide-react';
@@ -27,33 +27,108 @@ export default function OwnerLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [capsLockActive, setCapsLockActive] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+
+  // Restore remembered email on initial mount
+  useEffect(() => {
+    try {
+      const savedEmail =
+        localStorage.getItem('seait_stay_remembered_owner_email') ||
+        localStorage.getItem('seait_stay_remembered_email');
+      if (savedEmail) {
+        setEmail(savedEmail.trim().toLowerCase());
+        setRememberEmail(true);
+      }
+    } catch {
+      // Safe localStorage ignore
+    }
+  }, []);
+
+  const isValidEmail = (str: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str.trim());
+  };
+
+  const handleKeyModifier = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (typeof e.getModifierState === 'function') {
+      setCapsLockActive(e.getModifierState('CapsLock'));
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Automatically sanitize away whitespace and normalize to lowercase
+    const val = e.target.value.replace(/\s+/g, '').toLowerCase();
+    setEmail(val);
+    if (error) setError(null);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (error) setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      setError('Please enter your owner registered email address.');
+      return;
+    }
+
+    if (!isValidEmail(cleanEmail)) {
+      setError('Please provide a valid email format (e.g. landlord@gmail.com).');
+      return;
+    }
+
+    if (!password) {
+      setError('Please enter your account password.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const loggedUser = await login(email, password);
+      // Save or clear remembered email
+      try {
+        if (rememberEmail && cleanEmail) {
+          localStorage.setItem('seait_stay_remembered_owner_email', cleanEmail);
+          localStorage.setItem('seait_stay_remembered_email', cleanEmail);
+        } else {
+          localStorage.removeItem('seait_stay_remembered_owner_email');
+        }
+      } catch {
+        // Safe localStorage ignore
+      }
+
+      const loggedUser = await login(cleanEmail, password);
       if (loggedUser && loggedUser.role !== 'owner') {
+        if (loggedUser.role === 'admin') {
+          router.push('/dashboard/admin');
+          return;
+        }
         setError(
-          `Notice: Your account is registered as "${loggedUser.role.toUpperCase()}". This portal is specifically for Boarding House Owners.`
+          `Notice: Your account is registered as "${loggedUser.role.toUpperCase()}". Tenants do not require login; redirecting to explore view.`
         );
         setTimeout(() => {
-          if (loggedUser.role === 'admin') router.push('/dashboard/admin');
-          else router.push('/browse');
-        }, 3000);
+          router.push('/browse');
+        }, 2000);
         return;
       }
       router.push('/dashboard/owner');
     } catch (err: any) {
-      setError(err.message || 'Invalid owner email or password. Please try again.');
+      setError(err.message || 'Invalid owner email or password. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
   };
+
+  const isEmailFormatValid = email.length > 0 && isValidEmail(email);
+  const isEmailFormatInvalid = emailTouched && email.length > 0 && !isValidEmail(email);
 
   return (
     <div className="min-h-[85vh] bg-gradient-to-b from-amber-50/40 via-white to-slate-50 flex items-center justify-center px-4 py-12">
@@ -83,71 +158,119 @@ export default function OwnerLoginPage() {
           {error && (
             <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start space-x-2.5 animate-in fade-in duration-200">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <span>{error}</span>
+              <div className="space-y-0.5">
+                <span className="font-bold block">Sign-in Notice</span>
+                <span className="leading-relaxed">{error}</span>
+              </div>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            {/* Owner Email with instant format validation */}
             <div>
-              <label className="text-xs font-bold text-slate-700 block mb-1">
-                Owner Registered Email
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-slate-700">Owner Registered Email</label>
+                {isEmailFormatValid && (
+                  <span className="inline-flex items-center space-x-1 text-[11px] text-emerald-600 font-semibold">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Valid format</span>
+                  </span>
+                )}
+              </div>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
                   required
-                  placeholder="e.g. nanay.rosa@gmail.com"
+                  placeholder="e.g. landlord@gmail.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium"
+                  onChange={handleEmailChange}
+                  onBlur={() => setEmailTouched(true)}
+                  className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-xl text-sm transition-all font-medium focus:outline-none focus:bg-white ${
+                    isEmailFormatInvalid
+                      ? 'border-rose-300 bg-rose-50/30 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
+                      : 'border-slate-200 focus:ring-2 focus:ring-amber-500 focus:border-amber-500'
+                  }`}
                 />
               </div>
+              {isEmailFormatInvalid && (
+                <p className="mt-1 text-[11px] text-rose-600 font-medium">
+                  Please enter a valid email address (e.g. landlord@example.com).
+                </p>
+              )}
             </div>
 
+            {/* Password with Eye Toggle & CapsLock Detection */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="text-xs font-bold text-slate-700">Password</label>
-                <span className="text-[11px] text-slate-400">Default demo: Password123!</span>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] text-slate-500 hover:text-slate-800 font-medium transition-colors"
+                >
+                  {showPassword ? 'Hide password' : 'Show password'}
+                </button>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
                   placeholder="Enter your owner password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
+                  onKeyDown={handleKeyModifier}
+                  onKeyUp={handleKeyModifier}
                   className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition-all font-medium"
                 />
                 <button
                   type="button"
+                  tabIndex={-1}
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 p-0.5 rounded transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+
+              {/* Real-time CapsLock Warning */}
+              {capsLockActive && (
+                <div className="mt-1.5 flex items-center space-x-1.5 text-[11px] text-amber-800 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg animate-in fade-in">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>CapsLock is ON &mdash; Passwords are case-sensitive</span>
+                </div>
+              )}
             </div>
 
+            {/* Remember Me and Alternate Links */}
             <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center space-x-2 text-slate-600 cursor-pointer">
+              <label className="flex items-center space-x-2 text-slate-600 cursor-pointer select-none">
                 <input
                   type="checkbox"
-                  defaultChecked
+                  checked={rememberEmail}
+                  onChange={(e) => setRememberEmail(e.target.checked)}
                   className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
                 />
-                <span>Remember me on this device</span>
+                <span className="text-[11px] font-medium">Remember email on this device</span>
               </label>
               <Link
                 href="/login"
-                className="font-semibold text-amber-700 hover:text-amber-800"
+                className="text-[11px] font-semibold text-amber-700 hover:text-amber-800"
               >
-                Not an owner?
+                Admin / General Sign In &rarr;
               </Link>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}

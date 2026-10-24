@@ -68,9 +68,10 @@ class ApiClient {
 
   // Auth
   async login(email: string, password: string) {
+    const cleanEmail = (email || '').trim().toLowerCase();
     const res = await this.request<{ user: User; token: string }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email: cleanEmail, password })
     });
     if (res.data?.token) {
       this.setToken(res.data.token);
@@ -79,9 +80,14 @@ class ApiClient {
   }
 
   async register(data: any) {
+    const sanitizedData = {
+      ...data,
+      email: data.email ? data.email.trim().toLowerCase() : data.email,
+      fullName: data.fullName ? data.fullName.trim() : data.fullName
+    };
     const res = await this.request<{ user: User; token: string }>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify(data)
+      body: JSON.stringify(sanitizedData)
     });
     if (res.data?.token) {
       this.setToken(res.data.token);

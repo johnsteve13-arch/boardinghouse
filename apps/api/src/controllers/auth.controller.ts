@@ -8,10 +8,10 @@ import { AuthRequest } from '../middlewares/auth';
 import { User } from '@seait-stay/types';
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-  fullName: z.string().min(2),
-  role: z.enum(['student', 'owner', 'admin']).default('student'),
+  email: z.string().trim().email('Please enter a valid email address').toLowerCase(),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+  fullName: z.string().trim().min(2, 'Full name is required'),
+  role: z.enum(['student', 'owner', 'admin']).default('owner'),
   phone: z.string().optional(),
   studentId: z.string().optional(),
   department: z.string().optional(),
@@ -19,8 +19,8 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1)
+  email: z.string().trim().email('Please enter a valid email address').toLowerCase(),
+  password: z.string().min(1, 'Password is required')
 });
 
 export async function register(req: Request, res: Response, next: NextFunction) {
@@ -86,17 +86,26 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     const user = store.findUserByEmail(email);
     if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid email or password' });
+      return res.status(401).json({
+        success: false,
+        error: 'No account registered with this email address. Please check your spelling or register as an owner.'
+      });
     }
 
     const hash = store.getUserPasswordHash(user.id);
     if (!hash) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      return res.status(401).json({
+        success: false,
+        error: 'Account authentication configuration issue. Please contact administrator.'
+      });
     }
 
     const isMatch = await bcrypt.compare(password, hash);
     if (!isMatch) {
-      return res.status(401).json({ success: false, error: 'Invalid email or password' });
+      return res.status(401).json({
+        success: false,
+        error: 'Incorrect password. Please verify your password and check if CapsLock is active.'
+      });
     }
 
     const token = jwt.sign({ userId: user.id, role: user.role }, env.JWT_SECRET, {

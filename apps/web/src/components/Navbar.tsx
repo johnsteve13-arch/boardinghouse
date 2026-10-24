@@ -171,6 +171,12 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link
+                  href="/login"
+                  className="px-3 py-2 rounded-xl text-slate-600 hover:text-slate-900 font-semibold text-xs transition-all"
+                >
+                  Sign In
+                </Link>
+                <Link
                   href="/login/owner"
                   className="px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50/80 text-amber-900 font-semibold text-xs hover:bg-amber-100 transition-all flex items-center space-x-1.5"
                 >
@@ -248,11 +254,18 @@ export default function Navbar() {
             ) : (
               <div className="space-y-2">
                 <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50"
+                >
+                  Sign In (Admin & Owners)
+                </Link>
+                <Link
                   href="/login/owner"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full flex items-center justify-center py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 font-semibold text-xs hover:bg-amber-100"
                 >
-                  Owner Portal & Sign In
+                  Owner Portal
                 </Link>
                 <Link
                   href="/register"
