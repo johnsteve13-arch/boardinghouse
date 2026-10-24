@@ -133,8 +133,7 @@ export default function HomePage() {
                     <option value={500}>Within 500m (6 min walk)</option>
                     <option value={1000}>Within 1.0 km (12 min walk)</option>
                     <option value={2000}>Within 2.0 km (Default area)</option>
-                    <option value={3000}>Within 3.0 km (Crossing)</option>
-                    <option value={5000}>Within 5.0 km (Max radius)</option>
+                    <option value={3000}>Within 3.0 km (Crossing Rubber)</option>
                   </select>
                 </div>
               </div>

@@ -105,8 +105,8 @@ export default function FilterSidebar({
           </span>
         </div>
 
-        <div className="grid grid-cols-5 gap-1 pt-1">
-          {[500, 1000, 2000, 3000, 5000].map((radius) => (
+        <div className="grid grid-cols-4 gap-1.5 pt-1">
+          {[500, 1000, 2000, 3000].map((radius) => (
             <button
               key={radius}
               onClick={() => handleRadiusChange(radius)}
