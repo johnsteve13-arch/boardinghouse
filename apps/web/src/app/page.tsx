@@ -34,7 +34,7 @@ export default function HomePage() {
 
   // Search Bar State
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchRadius, setSearchRadius] = useState(2000);
+  const [searchRadius, setSearchRadius] = useState(3000);
   const [maxPrice, setMaxPrice] = useState<number | ''>('');
   const [genderPolicy, setGenderPolicy] = useState('all');
 
@@ -284,7 +284,7 @@ export default function HomePage() {
           </div>
 
           <div className="h-[420px] rounded-2xl overflow-hidden border border-slate-200">
-            <MapView properties={properties} radiusMeters={2000} />
+            <MapView properties={properties} radiusMeters={3000} />
           </div>
         </div>
       </section>
