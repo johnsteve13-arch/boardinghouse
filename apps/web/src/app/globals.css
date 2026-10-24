@@ -36,3 +36,22 @@ body {
   height: 100%;
   z-index: 10;
 }
+
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+.seait-beacon-pulse {
+  animation: radar-pulse 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.seait-barrier-label {
+  pointer-events: none !important;
+}

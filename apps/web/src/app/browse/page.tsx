@@ -231,6 +231,7 @@ function BrowseContent() {
                   selectedPropertyId={selectedPropertyId}
                   onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
                   radiusMeters={filters.radiusMeters}
+                  onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
                   className="h-full w-full rounded-2xl"
                 />
               </div>
@@ -272,6 +273,7 @@ function BrowseContent() {
                 selectedPropertyId={selectedPropertyId}
                 onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
                 radiusMeters={filters.radiusMeters}
+                onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
                 className="h-full w-full"
               />
             </div>

@@ -60,7 +60,7 @@ const initialSystemSettings: SystemSettings = {
   seaitLatitude: 6.3648,
   seaitLongitude: 124.9222,
   defaultSearchRadiusKm: 2.0,
-  maxSearchRadiusKm: 5.0,
+  maxSearchRadiusKm: 3.0,
   enableExactLocationToPublic: true,
   staleAvailabilityThresholdDays: 14
 };

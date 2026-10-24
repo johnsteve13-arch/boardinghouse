@@ -107,6 +107,7 @@ export default function CampusMapPage() {
           selectedPropertyId={selectedProperty?.id}
           onSelectProperty={(prop) => setSelectedProperty(prop)}
           radiusMeters={radiusMeters}
+          onRadiusChange={setRadiusMeters}
           className="h-full w-full rounded-none border-none"
         />
 

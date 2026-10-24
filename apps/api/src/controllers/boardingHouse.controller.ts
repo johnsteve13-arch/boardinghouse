@@ -34,13 +34,10 @@ export async function getBoardingHouses(req: Request, res: Response, next: NextF
       );
     }
 
-    // SEAIT Radius Filter
-    if (radiusMeters) {
-      const radius = Number(radiusMeters);
-      if (!isNaN(radius) && radius > 0) {
-        results = results.filter((h) => h.distanceFromSeaitMeters <= radius);
-      }
-    }
+    // SEAIT Radius Filter - strictly scoped to maximum 3000m (3.0 km) around SEAIT
+    const requestedRadius = radiusMeters ? Number(radiusMeters) : 3000;
+    const cappedRadius = Math.min(isNaN(requestedRadius) || requestedRadius <= 0 ? 3000 : requestedRadius, 3000);
+    results = results.filter((h) => h.distanceFromSeaitMeters <= cappedRadius);
 
     // Price Filter
     if (minPrice) {

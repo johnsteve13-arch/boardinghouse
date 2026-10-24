@@ -120,6 +120,9 @@ export default function FilterSidebar({
             </button>
           ))}
         </div>
+        <p className="text-[10px] text-slate-400 font-medium">
+          🔒 Strictly bounded to 3.0 km perimeter around SEAIT campus in Crossing Rubber, Tupi.
+        </p>
       </div>
 
       {/* 2. Monthly Budget Range */}
