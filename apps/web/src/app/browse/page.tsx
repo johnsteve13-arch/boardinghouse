@@ -10,7 +10,8 @@ import {
   Search,
   ArrowUpDown,
   Navigation,
-  School
+  School,
+  Maximize2
 } from 'lucide-react';
 import PropertyCard from '../../components/PropertyCard';
 import FilterSidebar, { FilterState } from '../../components/FilterSidebar';
@@ -23,7 +24,9 @@ function BrowseContent() {
 
   const [properties, setProperties] = useState<BoardingHouse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'split' | 'grid' | 'map'>('split');
+  const [viewMode, setViewMode] = useState<'split' | 'grid' | 'map'>(
+    searchParams.get('view') === 'map' ? 'map' : 'split'
+  );
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('distance_asc');
 
@@ -187,6 +190,27 @@ function BrowseContent() {
                     Found <strong className="text-slate-900">{properties.length}</strong> boarding houses near SEAIT
                   </span>
                   <span>Radius: {filters.radiusMeters >= 1000 ? `${filters.radiusMeters / 1000}km` : `${filters.radiusMeters}m`}</span>
+                </div>
+
+                {/* Mobile & Tablet Interactive Map Card (Always visible on screens < xl) */}
+                <div className="xl:hidden w-full h-[360px] sm:h-[420px] rounded-3xl overflow-hidden border border-slate-200/90 shadow-card relative">
+                  <div className="absolute top-3 right-3 z-[1001]">
+                    <button
+                      onClick={() => setViewMode('map')}
+                      className="px-3 py-1.5 rounded-xl bg-slate-900/95 backdrop-blur-md text-white font-bold text-xs shadow-lg flex items-center space-x-1.5 hover:bg-slate-800 transition-all border border-slate-700/60"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Full Map</span>
+                    </button>
+                  </div>
+                  <MapView
+                    properties={properties}
+                    selectedPropertyId={selectedPropertyId}
+                    onSelectProperty={(prop) => setSelectedPropertyId(prop.id)}
+                    radiusMeters={filters.radiusMeters}
+                    onRadiusChange={(r) => setFilters((prev) => ({ ...prev, radiusMeters: r }))}
+                    className="h-full w-full"
+                  />
                 </div>
 
                 {loading ? (
