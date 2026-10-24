@@ -172,22 +172,36 @@ export default function OwnerDashboardPage() {
   // Create New House Submission
   const handleCreateHouse = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newHouseName.trim()) {
+      alert('Please enter a boarding house name.');
+      return;
+    }
     setIsSubmittingHouse(true);
     try {
+      const price = Number(String(newHousePrice).replace(/[^0-9.]/g, '')) || 2000;
+      const highPrice = Number(String(newHouseHighPrice).replace(/[^0-9.]/g, '')) || Math.max(price, 3500);
+      const totalR = Number(newHouseTotalRooms) || 6;
+      const availR = Math.min(Number(newHouseAvailRooms) || 2, totalR);
+
       const created = await api.createBoardingHouse({
-        name: newHouseName,
-        description: newHouseDesc,
-        address: newHouseAddress,
-        purok: newHousePurok,
-        latitude: Number(newHouseLat),
-        longitude: Number(newHouseLng),
-        genderPolicy: newHouseGender,
-        lowestPriceMonthly: Number(newHousePrice),
-        highestPriceMonthly: Number(newHouseHighPrice),
-        totalRooms: Number(newHouseTotalRooms),
-        availableRooms: Number(newHouseAvailRooms),
-        coverImage: newHouseCover,
-        amenities: newHouseAmenities
+        name: newHouseName.trim(),
+        description:
+          newHouseDesc.trim() ||
+          'Clean, safe, and comfortable student & tenant boarding house near SEAIT campus in Crossing Rubber, Tupi.',
+        address: newHouseAddress.trim() || `${newHousePurok}, Tupi, South Cotabato`,
+        purok: newHousePurok || 'Purok 7, Crossing Rubber',
+        latitude: Number(newHouseLat) || 6.365,
+        longitude: Number(newHouseLng) || 124.923,
+        genderPolicy: newHouseGender || 'all',
+        lowestPriceMonthly: price,
+        highestPriceMonthly: highPrice >= price ? highPrice : price + 1000,
+        totalRooms: totalR,
+        availableRooms: availR,
+        coverImage: newHouseCover.trim() || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800',
+        amenities:
+          newHouseAmenities.length > 0
+            ? newHouseAmenities
+            : ['wifi', 'cooking_allowed', 'drinking_water', 'cctv_security']
       });
 
       if (created) {

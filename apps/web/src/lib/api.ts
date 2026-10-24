@@ -55,7 +55,9 @@ class ApiClient {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || `HTTP error ${response.status}`);
+        const detailMsg = data.details?.map((d: any) => `${d.path || 'field'}: ${d.message}`).join(', ');
+        const finalMsg = detailMsg ? `${data.error || 'Request failed'} (${detailMsg})` : data.error || `HTTP error ${response.status}`;
+        throw new Error(finalMsg);
       }
       return data;
     } catch (err: any) {

@@ -5,9 +5,16 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
   console.error('[API Error]:', err);
 
   if (err instanceof ZodError) {
+    const errorDetails = err.errors
+      .map((e) => {
+        const field = e.path.join('.') || 'field';
+        return `${field}: ${e.message}`;
+      })
+      .join('; ');
+
     return res.status(400).json({
       success: false,
-      error: 'Validation failed',
+      error: `Validation error (${errorDetails})`,
       details: err.errors.map((e) => ({
         path: e.path.join('.'),
         message: e.message
