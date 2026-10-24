@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
   SlidersHorizontal,
@@ -11,7 +12,8 @@ import {
   ArrowUpDown,
   Navigation,
   School,
-  Maximize2
+  Maximize2,
+  MapPin
 } from 'lucide-react';
 import PropertyCard from '../../components/PropertyCard';
 import FilterSidebar, { FilterState } from '../../components/FilterSidebar';
@@ -21,19 +23,20 @@ import { api } from '../../lib/api';
 
 function BrowseContent() {
   const searchParams = useSearchParams();
+  const highlightId = searchParams.get('highlight') || searchParams.get('id');
 
   const [properties, setProperties] = useState<BoardingHouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'split' | 'grid' | 'map'>(
-    searchParams.get('view') === 'map' ? 'map' : 'split'
+    searchParams.get('view') === 'map' || Boolean(highlightId) ? 'map' : 'split'
   );
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(highlightId);
   const [sortBy, setSortBy] = useState('distance_asc');
 
-  // Filter state
+  // Filter state (Defaults to full 3.0 km SEAIT scope)
   const [filters, setFilters] = useState<FilterState>({
     query: searchParams.get('query') || '',
-    radiusMeters: searchParams.get('radiusMeters') ? Number(searchParams.get('radiusMeters')) : 2000,
+    radiusMeters: searchParams.get('radiusMeters') ? Number(searchParams.get('radiusMeters')) : 3000,
     minPrice: searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : 0,
     maxPrice: searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : 10000,
     genderPolicy: searchParams.get('genderPolicy') || 'all',
@@ -44,6 +47,16 @@ function BrowseContent() {
   });
 
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+
+  // Sync highlightId when search params change
+  useEffect(() => {
+    if (highlightId) {
+      setSelectedPropertyId(highlightId);
+      if (searchParams.get('view') === 'map') {
+        setViewMode('map');
+      }
+    }
+  }, [highlightId, searchParams]);
 
   // Fetch properties whenever filters or sorting change
   useEffect(() => {
@@ -78,7 +91,7 @@ function BrowseContent() {
   const handleResetFilters = () => {
     setFilters({
       query: '',
-      radiusMeters: 2000,
+      radiusMeters: 3000,
       minPrice: 0,
       maxPrice: 10000,
       genderPolicy: 'all',
@@ -89,8 +102,55 @@ function BrowseContent() {
     });
   };
 
+  const highlightedProp = highlightId ? properties.find((p) => p.id === highlightId) : null;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+      {/* Property Map Spotlight Banner (When directed to a specific listing) */}
+      {highlightedProp && (
+        <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 text-white p-4 sm:p-5 rounded-3xl shadow-lg border border-emerald-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in">
+          <div className="flex items-start sm:items-center space-x-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 flex items-center justify-center shrink-0 shadow-inner">
+              <MapPin className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[10px] uppercase font-black tracking-widest text-emerald-400">
+                  Direct Live Map Focus
+                </span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold">
+                  Live on 3.0 KM Map
+                </span>
+              </div>
+              <h2 className="font-black text-base text-white tracking-tight">
+                {highlightedProp.name} • {highlightedProp.purok}
+              </h2>
+              <p className="text-xs text-slate-300">
+                ⏱️ {highlightedProp.walkingTimeMinutes} min walk ({highlightedProp.distanceFromSeaitMeters}m from SEAIT Campus Gate)
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2 self-end sm:self-auto">
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                viewMode === 'map'
+                  ? 'bg-emerald-500 text-white shadow-md'
+                  : 'bg-white/10 hover:bg-white/20 text-white'
+              }`}
+            >
+              Interactive Map
+            </button>
+            <Link
+              href={`/boarding-houses/${highlightedProp.slug}`}
+              className="px-4 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs hover:bg-slate-100 shadow-sm transition-all"
+            >
+              Public Listing &rarr;
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Search Header Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
         {/* Search query input */}

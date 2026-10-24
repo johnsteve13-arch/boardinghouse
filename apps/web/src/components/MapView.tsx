@@ -612,10 +612,14 @@ export default function MapView({
   useEffect(() => {
     if (selectedPropertyId && markersRef.current[selectedPropertyId] && mapInstanceRef.current) {
       const marker = markersRef.current[selectedPropertyId];
-      mapInstanceRef.current.panTo(marker.getLatLng(), { animate: true });
-      marker.openPopup();
+      mapInstanceRef.current.invalidateSize();
+      mapInstanceRef.current.flyTo(marker.getLatLng(), 16.5, { animate: true, duration: 0.9 });
+      const timer = setTimeout(() => {
+        marker.openPopup();
+      }, 400);
+      return () => clearTimeout(timer);
     }
-  }, [selectedPropertyId]);
+  }, [selectedPropertyId, properties]);
 
   // Smooth Pan to Center Campus Action
   const handleRecenter = () => {

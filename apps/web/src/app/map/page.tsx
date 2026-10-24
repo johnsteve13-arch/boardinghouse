@@ -1,30 +1,40 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import MapView from '../../components/MapView';
 import PropertyCard from '../../components/PropertyCard';
 import { BoardingHouse } from '@seait-stay/types';
 import { api } from '../../lib/api';
-import { Compass, School, SlidersHorizontal, MapPin } from 'lucide-react';
+import { Compass, School, SlidersHorizontal, MapPin, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
-export default function CampusMapPage() {
+function CampusMapContent() {
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get('highlight') || searchParams.get('id');
+
   const [properties, setProperties] = useState<BoardingHouse[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<BoardingHouse | null>(null);
-  const [radiusMeters, setRadiusMeters] = useState(2000);
+  const [radiusMeters, setRadiusMeters] = useState(3000); // 3.0 km full SEAIT perimeter
   const [genderFilter, setGenderFilter] = useState('all');
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await api.getBoardingHouses();
+        const data = await api.getBoardingHouses({ radiusMeters: 3000 });
         setProperties(data);
+        if (highlightId && data.length > 0) {
+          const target = data.find((p) => p.id === highlightId);
+          if (target) {
+            setSelectedProperty(target);
+          }
+        }
       } catch (err) {
         console.error('Failed to load map properties:', err);
       }
     }
     load();
-  }, []);
+  }, [highlightId]);
 
   const filteredProperties = properties.filter((p) => {
     if (p.distanceFromSeaitMeters > radiusMeters) return false;
@@ -47,7 +57,7 @@ export default function CampusMapPage() {
               SEAIT Campus Interactive Map
             </h1>
             <p className="text-[11px] text-slate-500">
-              Crossing Rubber, Tupi, South Cotabato ({filteredProperties.length} boarding houses shown)
+              Crossing Rubber, Tupi, South Cotabato ({filteredProperties.length} boarding houses within 3km scope)
             </p>
           </div>
         </div>
@@ -127,5 +137,13 @@ export default function CampusMapPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CampusMapPage() {
+  return (
+    <Suspense fallback={<div className="h-screen flex items-center justify-center text-xs text-slate-400">Loading SEAIT Map...</div>}>
+      <CampusMapContent />
+    </Suspense>
   );
 }

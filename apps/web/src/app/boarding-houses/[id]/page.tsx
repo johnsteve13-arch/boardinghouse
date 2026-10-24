@@ -433,10 +433,17 @@ export default function PropertyDetailsPage() {
           {/* Interactive Map & Nearby Surroundings (Requirement 14 & 26) */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Location & Nearby Establishments</h2>
-              <span className="text-xs font-medium text-emerald-700">
-                📍 {property.purok}, {property.barangay}
-              </span>
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">Location & Nearby Establishments</h2>
+                <p className="text-xs text-slate-500">📍 {property.purok}, {property.barangay}, Tupi</p>
+              </div>
+              <Link
+                href={`/browse?highlight=${property.id}&view=map`}
+                className="text-xs font-bold text-emerald-800 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 px-3.5 py-1.5 rounded-xl flex items-center space-x-1.5 transition-colors shadow-xs"
+              >
+                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                <span>View on 3km Map</span>
+              </Link>
             </div>
 
             <div className="h-72 rounded-2xl overflow-hidden border border-slate-200">

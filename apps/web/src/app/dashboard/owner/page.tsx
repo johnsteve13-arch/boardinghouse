@@ -28,7 +28,10 @@ import {
   MapPin,
   Sparkles,
   MessageCircle,
-  CornerDownRight
+  CornerDownRight,
+  ArrowRight,
+  Navigation,
+  Compass
 } from 'lucide-react';
 import { useAuth } from '../../../lib/authContext';
 import { BoardingHouse, AvailabilityStatus, Room, Review } from '@seait-stay/types';
@@ -49,6 +52,90 @@ export default function OwnerDashboardPage() {
   const [isSubmittingReply, setIsSubmittingReply] = useState<Record<string, boolean>>({});
   const [editingReplyId, setEditingReplyId] = useState<string | null>(null);
 
+// Key Purok anchors in Crossing Rubber, Tupi around SEAIT
+const PUROK_LOCATIONS: Record<
+  string,
+  {
+    name: string;
+    lat: number;
+    lng: number;
+    distance: number;
+    walkingMins: number;
+    desc: string;
+  }
+> = {
+  'Purok 7, Crossing Rubber': {
+    name: 'Purok 7 (Closest to SEAIT Campus Gate)',
+    lat: 6.3652,
+    lng: 124.9216,
+    distance: 120,
+    walkingMins: 2,
+    desc: 'Direct SEAIT Gate access across the National Highway'
+  },
+  'Purok 6, Crossing Rubber': {
+    name: 'Purok 6 (Crossing Rubber East & Terminal)',
+    lat: 6.3665,
+    lng: 124.9238,
+    distance: 280,
+    walkingMins: 4,
+    desc: 'Near 24/7 tricycle terminal & convenience stores'
+  },
+  'Purok 5, Crossing Rubber': {
+    name: 'Purok 5 (National Highway Junction)',
+    lat: 6.3636,
+    lng: 124.9208,
+    distance: 240,
+    walkingMins: 3,
+    desc: 'National Highway corridor with express transit stop'
+  },
+  'Purok 4, Crossing Rubber': {
+    name: 'Purok 4 (Crossing Rubber North & Chapel)',
+    lat: 6.3678,
+    lng: 124.9232,
+    distance: 420,
+    walkingMins: 5,
+    desc: 'Quiet residential neighborhood behind Catholic Chapel'
+  },
+  'Purok 3, Crossing Rubber': {
+    name: 'Purok 3 (Crossing Rubber Market & Food Hub)',
+    lat: 6.3622,
+    lng: 124.9192,
+    distance: 510,
+    walkingMins: 6,
+    desc: 'Near public market, carinderias, bakeries & refillers'
+  },
+  'Purok 2, Crossing Rubber': {
+    name: 'Purok 2 (Dole Bypass Road)',
+    lat: 6.3698,
+    lng: 124.9255,
+    distance: 740,
+    walkingMins: 9,
+    desc: 'Spacious area with breeze along Dole bypass road'
+  },
+  'Purok 1, Crossing Rubber': {
+    name: 'Purok 1 (Barangay Hall & Tanod Post)',
+    lat: 6.3605,
+    lng: 124.9175,
+    distance: 850,
+    walkingMins: 11,
+    desc: 'Close to Barangay Crossing Rubber Hall and Tanod station'
+  }
+};
+
+function calculateDistanceToCampus(lat: number, lng: number): number {
+  const R = 6371000;
+  const dLat = ((lat - 6.3648) * Math.PI) / 180;
+  const dLon = ((lng - 124.9222) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((6.3648 * Math.PI) / 180) *
+      Math.cos((lat * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
+}
+
   // Property Deletion Modal State
   const [deleteModalHouse, setDeleteModalHouse] = useState<BoardingHouse | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -58,8 +145,9 @@ export default function OwnerDashboardPage() {
   const [newHouseDesc, setNewHouseDesc] = useState('');
   const [newHouseAddress, setNewHouseAddress] = useState('');
   const [newHousePurok, setNewHousePurok] = useState('Purok 7, Crossing Rubber');
-  const [newHouseLat, setNewHouseLat] = useState(6.365);
-  const [newHouseLng, setNewHouseLng] = useState(124.923);
+  const [newHouseLat, setNewHouseLat] = useState(6.3652);
+  const [newHouseLng, setNewHouseLng] = useState(124.9216);
+  const [justPublishedHouse, setJustPublishedHouse] = useState<BoardingHouse | null>(null);
   const [newHouseGender, setNewHouseGender] = useState<'all' | 'female_only' | 'male_only'>('all');
   const [newHousePrice, setNewHousePrice] = useState(2000);
   const [newHouseHighPrice, setNewHouseHighPrice] = useState(3500);
@@ -73,6 +161,27 @@ export default function OwnerDashboardPage() {
   ]);
   const [newHouseCover, setNewHouseCover] = useState('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800');
   const [isSubmittingHouse, setIsSubmittingHouse] = useState(false);
+
+  const handlePurokSelect = (purokKey: string) => {
+    setNewHousePurok(purokKey);
+    const loc = PUROK_LOCATIONS[purokKey];
+    if (loc) {
+      setNewHouseLat(loc.lat);
+      setNewHouseLng(loc.lng);
+    }
+  };
+
+  const handleNudgeLocation = (dLat: number, dLng: number) => {
+    const newLat = Number((newHouseLat + dLat).toFixed(4));
+    const newLng = Number((newHouseLng + dLng).toFixed(4));
+    const dist = calculateDistanceToCampus(newLat, newLng);
+    if (dist <= 3000) {
+      setNewHouseLat(newLat);
+      setNewHouseLng(newLng);
+    } else {
+      alert('Location would exceed the 3.0 km SEAIT maximum service radius.');
+    }
+  };
 
   // Verification Form State
   const [idType, setIdType] = useState('Philippine Passport');
@@ -190,8 +299,8 @@ export default function OwnerDashboardPage() {
           'Clean, safe, and comfortable student & tenant boarding house near SEAIT campus in Crossing Rubber, Tupi.',
         address: newHouseAddress.trim() || `${newHousePurok}, Tupi, South Cotabato`,
         purok: newHousePurok || 'Purok 7, Crossing Rubber',
-        latitude: Number(newHouseLat) || 6.365,
-        longitude: Number(newHouseLng) || 124.923,
+        latitude: Number(newHouseLat) || 6.3652,
+        longitude: Number(newHouseLng) || 124.9216,
         genderPolicy: newHouseGender || 'all',
         lowestPriceMonthly: price,
         highestPriceMonthly: highPrice >= price ? highPrice : price + 1000,
@@ -207,12 +316,13 @@ export default function OwnerDashboardPage() {
       if (created) {
         setProperties((prev) => [created, ...prev]);
         setActiveTab('listings');
+        setJustPublishedHouse(created);
         // Reset form
         setNewHouseName('');
         setNewHouseDesc('');
         setNewHouseAddress('');
-        setNotice(`Boarding house "${created.name}" created and published successfully!`);
-        setTimeout(() => setNotice(null), 4500);
+        setNotice(`Boarding house "${created.name}" published successfully! Its location is directly live and visible on the map.`);
+        setTimeout(() => setNotice(null), 6000);
       }
     } catch (err: any) {
       alert(err.message || 'Failed to list boarding house');
@@ -441,6 +551,63 @@ export default function OwnerDashboardPage() {
       {/* TAB 1: LISTINGS MANAGEMENT */}
       {activeTab === 'listings' && (
         <div className="space-y-6">
+          {/* Newly Published Property Live Map Hero Card */}
+          {justPublishedHouse && (
+            <div className="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-900 text-white rounded-3xl p-6 sm:p-7 border-2 border-emerald-500 shadow-xl relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setJustPublishedHouse(null)}
+                  className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors"
+                  title="Dismiss celebration card"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-black tracking-wide uppercase">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    <span>Listing Live & Directly Visible on 3km Map</span>
+                  </div>
+
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                    🎉 &quot;{justPublishedHouse.name}&quot; is Now Live on the Map!
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                    Your boarding house pin has been anchored at <strong className="text-white">{justPublishedHouse.purok}</strong>, precisely <strong className="text-emerald-400">{justPublishedHouse.distanceFromSeaitMeters}m</strong> (~{justPublishedHouse.walkingTimeMinutes} min walk) from the SEAIT Campus Gate. Tenants browsing the map can now click your pin, view room rates, and inquire directly!
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-300">
+                    <span className="bg-white/10 px-2.5 py-1 rounded-lg">📍 {justPublishedHouse.address}</span>
+                    <span className="bg-white/10 px-2.5 py-1 rounded-lg">⏱️ {justPublishedHouse.walkingTimeMinutes} mins to SEAIT</span>
+                    <span className="bg-white/10 px-2.5 py-1 rounded-lg">💰 ₱{justPublishedHouse.lowestPriceMonthly.toLocaleString()} / mo</span>
+                    <span className="bg-white/10 px-2.5 py-1 rounded-lg">🛏️ {justPublishedHouse.availableRooms} slots available</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                  <Link
+                    href={`/browse?highlight=${justPublishedHouse.id}&view=map`}
+                    className="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition-all hover:scale-[1.02]"
+                  >
+                    <MapPin className="w-4 h-4 text-slate-950" />
+                    <span>View Location on Live Map</span>
+                    <ArrowRight className="w-4 h-4 text-slate-950" />
+                  </Link>
+                  <Link
+                    href={`/boarding-houses/${justPublishedHouse.slug}`}
+                    className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center justify-center space-x-1.5 transition-colors border border-white/20"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Public Listing</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
             <div>
               <h2 className="text-lg font-black text-slate-900">Your Boarding Houses</h2>
@@ -525,6 +692,14 @@ export default function OwnerDashboardPage() {
 
                       {/* Action Links */}
                       <div className="flex flex-wrap items-center gap-2">
+                        <Link
+                          href={`/browse?highlight=${prop.id}&view=map`}
+                          className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-bold text-xs flex items-center space-x-1.5 transition-colors shadow-xs"
+                          title="View this property pin on the live 3km SEAIT map"
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>View on Live Map</span>
+                        </Link>
                         <button
                           onClick={() => {
                             setSelectedReviewHouseId(prop.id);
@@ -687,37 +862,130 @@ export default function OwnerDashboardPage() {
               />
             </div>
 
-            {/* Location & Gender Policy */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Location & Map Pin Anchoring Section */}
+            <div className="p-4 sm:p-5 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-4">
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Purok (Crossing Rubber) *</label>
-                <select
-                  value={newHousePurok}
-                  onChange={(e) => setNewHousePurok(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                >
-                  <option value="Purok 7, Crossing Rubber">Purok 7 (Closest to SEAIT Campus Gate)</option>
-                  <option value="Purok 6, Crossing Rubber">Purok 6, Crossing Rubber</option>
-                  <option value="Purok 5, Crossing Rubber">Purok 5, National Highway</option>
-                  <option value="Purok 4, Crossing Rubber">Purok 4, Crossing Rubber</option>
-                  <option value="Purok 3, Crossing Rubber">Purok 3, Crossing Rubber</option>
-                  <option value="Purok 2, Crossing Rubber">Purok 2, Dole Bypass</option>
-                  <option value="Purok 1, Crossing Rubber">Purok 1, Crossing Rubber</option>
-                </select>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-bold text-slate-800 text-xs flex items-center space-x-1.5">
+                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    <span>Purok Location & Map Coordinates (Crossing Rubber) *</span>
+                  </label>
+                  <span className="text-[11px] text-emerald-700 font-extrabold bg-emerald-100/90 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center space-x-1">
+                    <span>SEAIT 3.0 KM Scope</span>
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  Select your Purok to automatically anchor your pin. Once published, your boarding house location will be directly visible and clickable on the interactive map.
+                </p>
               </div>
 
-              <div>
-                <label className="font-bold text-slate-700 block mb-1">Gender Policy *</label>
-                <select
-                  value={newHouseGender}
-                  onChange={(e) => setNewHouseGender(e.target.value as any)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                >
-                  <option value="all">Co-ed / All Welcome</option>
-                  <option value="female_only">Female Only (All Ladies)</option>
-                  <option value="male_only">Male Only</option>
-                </select>
+              {/* Purok Interactive Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {Object.entries(PUROK_LOCATIONS).map(([purokKey, loc]) => {
+                  const isSelected = newHousePurok === purokKey;
+                  return (
+                    <button
+                      type="button"
+                      key={purokKey}
+                      onClick={() => handlePurokSelect(purokKey)}
+                      className={`p-2.5 rounded-xl text-left border transition-all ${
+                        isSelected
+                          ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold shadow-xs ring-1 ring-emerald-500/30'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs mb-0.5">
+                        <span className="font-bold">{loc.name.split(' (')[0]}</span>
+                        <span
+                          className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-md ${
+                            isSelected ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          ~{loc.distance}m
+                        </span>
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 line-clamp-1">{loc.desc}</p>
+                    </button>
+                  );
+                })}
               </div>
+
+              {/* Live Distance & Pin Fine-Tuning Bar */}
+              {(() => {
+                const liveDist = calculateDistanceToCampus(newHouseLat, newHouseLng);
+                const liveMins = Math.max(1, Math.round(liveDist / 80));
+                return (
+                  <div className="pt-3 border-t border-slate-200/80 space-y-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span className="font-extrabold text-slate-800">
+                          ⏱️ ~{liveMins} min walk ({liveDist}m from SEAIT Main Gate)
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-lg border border-emerald-200">
+                        ✅ Within 3.0 KM Scope &bull; Directly Visible on Map
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-slate-200 text-[11px]">
+                      <span className="text-slate-600 font-mono">
+                        📍 Pin: {newHouseLat.toFixed(4)}° N, {newHouseLng.toFixed(4)}° E
+                      </span>
+                      {/* Micro-nudge buttons */}
+                      <div className="flex items-center space-x-1">
+                        <span className="text-[10px] text-slate-400 font-medium mr-1">Fine-tune:</span>
+                        <button
+                          type="button"
+                          onClick={() => handleNudgeLocation(0.0005, 0)}
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors"
+                          title="Nudge North 50m"
+                        >
+                          ▲ North
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleNudgeLocation(-0.0005, 0)}
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors"
+                          title="Nudge South 50m"
+                        >
+                          ▼ South
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleNudgeLocation(0, -0.0005)}
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors"
+                          title="Nudge West 50m"
+                        >
+                          ◀ West
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleNudgeLocation(0, 0.0005)}
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors"
+                          title="Nudge East 50m"
+                        >
+                          ▶ East
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Gender Policy */}
+            <div>
+              <label className="font-bold text-slate-700 block mb-1">Gender Policy *</label>
+              <select
+                value={newHouseGender}
+                onChange={(e) => setNewHouseGender(e.target.value as any)}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              >
+                <option value="all">Co-ed / All Welcome</option>
+                <option value="female_only">Female Only (All Ladies)</option>
+                <option value="male_only">Male Only</option>
+              </select>
             </div>
 
             {/* Detailed Street Address */}

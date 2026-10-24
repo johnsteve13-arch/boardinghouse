@@ -12,7 +12,7 @@ export const SEAIT_CAMPUS = {
   province: 'South Cotabato',
   postalCode: '9505',
   defaultSearchRadiusKm: 2.0,
-  maxSearchRadiusKm: 5.0
+  maxSearchRadiusKm: 3.0
 };
 
 /**
