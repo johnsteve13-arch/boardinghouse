@@ -746,6 +746,24 @@ const initialReviews: Review[] = [
     comment:
       'Tahimik at safe. Solid ang gate and CCTV. Never nagkaroon ng issue sa gamit. Best boarding house near SEAIT Crossing Rubber.',
     createdAt: '2024-03-12T11:00:00.000Z'
+  },
+  {
+    id: 'rev-3',
+    boardingHouseId: 'bh-2',
+    studentId: 'user-student-3',
+    studentName: 'Hannah Grace Morales',
+    studentAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+    studentDepartment: 'College of Education (BSED)',
+    isStayVerified: true,
+    overallRating: 4.9,
+    cleanlinessRating: 5.0,
+    locationRating: 4.8,
+    valueRating: 5.0,
+    safetyRating: 5.0,
+    ownerResponsivenessRating: 4.9,
+    comment:
+      'Very quiet and secured dormitory for female students! The study desks are well-lit and the kitchen is always kept clean. Nanay Rosa is like a real mother to us here.',
+    createdAt: '2024-03-24T16:20:00.000Z'
   }
 ];
 

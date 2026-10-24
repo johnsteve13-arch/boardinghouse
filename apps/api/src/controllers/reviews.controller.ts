@@ -33,6 +33,22 @@ export async function getReviewsForHouse(req: Request, res: Response, next: Next
   }
 }
 
+export async function getOwnerReviews(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });
+    const myHouses = store.getBoardingHouses().filter((h) => h.ownerId === req.user?.id);
+    const myHouseIds = new Set(myHouses.map((h) => h.id));
+    const reviews = store.getReviews().filter((r) => myHouseIds.has(r.boardingHouseId));
+    return res.json({
+      success: true,
+      meta: { total: reviews.length },
+      data: reviews
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function submitReview(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });

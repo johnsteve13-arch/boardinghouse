@@ -192,6 +192,11 @@ class ApiClient {
     return res.data || [];
   }
 
+  async getOwnerReviews() {
+    const res = await this.request<Review[]>('/reviews/owner/all');
+    return res.data || [];
+  }
+
   async submitReview(data: any) {
     const res = await this.request<Review>('/reviews', {
       method: 'POST',
