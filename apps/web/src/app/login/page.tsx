@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Home, Lock, Mail, ArrowRight, Shield, User as UserIcon } from 'lucide-react';
+import { Home, Lock, Mail, ArrowRight } from 'lucide-react';
 import { useAuth } from '../../lib/authContext';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, switchDemoRole } = useAuth();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,20 +30,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleQuickDemo = async (role: 'student' | 'owner' | 'admin') => {
-    setLoading(true);
-    try {
-      await switchDemoRole(role);
-      if (role === 'admin') router.push('/dashboard/admin');
-      else if (role === 'owner') router.push('/dashboard/owner');
-      else router.push('/dashboard/student');
-    } catch {
-      setError('Failed to switch demo persona');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 shadow-card space-y-6">
@@ -56,36 +42,6 @@ export default function LoginPage() {
           <p className="text-xs text-slate-500">
             Access your student favorites, inquiries, or owner listings
           </p>
-        </div>
-
-        {/* 1-Click Demo Personas */}
-        <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs space-y-2">
-          <span className="font-bold text-emerald-950 block text-[11px] uppercase tracking-wider">
-            Quick 1-Click Role Testing:
-          </span>
-          <div className="grid grid-cols-3 gap-1.5">
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('student')}
-              className="py-1.5 px-2 bg-white rounded-lg border border-emerald-200 text-emerald-900 font-semibold text-[11px] hover:bg-emerald-100/50 shadow-2xs"
-            >
-              Student
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('owner')}
-              className="py-1.5 px-2 bg-white rounded-lg border border-emerald-200 text-emerald-900 font-semibold text-[11px] hover:bg-emerald-100/50 shadow-2xs"
-            >
-              Owner
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickDemo('admin')}
-              className="py-1.5 px-2 bg-white rounded-lg border border-emerald-200 text-emerald-900 font-semibold text-[11px] hover:bg-emerald-100/50 shadow-2xs"
-            >
-              Admin
-            </button>
-          </div>
         </div>
 
         {error && (
@@ -136,20 +92,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="pt-2 text-center text-xs text-slate-500 space-y-2">
-          <div>
-            <span>Don't have an account? </span>
-            <Link href="/register" className="font-bold text-emerald-700 hover:underline">
-              Register here
-            </Link>
-          </div>
-          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between text-[11px]">
-            <span>Are you a Boarding House Owner?</span>
-            <Link href="/login/owner" className="font-bold text-amber-800 hover:text-amber-950 underline flex items-center space-x-1">
-              <span>Owner Portal</span>
-              <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
+        <div className="pt-2 text-center text-xs text-slate-500">
+          <span>Don't have an account? </span>
+          <Link href="/register" className="font-bold text-emerald-700 hover:underline">
+            Register here
+          </Link>
         </div>
       </div>
     </div>
