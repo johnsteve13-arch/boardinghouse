@@ -16,7 +16,8 @@ import {
   Users,
   ChevronRight,
   TrendingUp,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../../lib/authContext';
 import { BoardingHouse, AvailabilityStatus, Room } from '@seait-stay/types';
@@ -230,6 +231,13 @@ export default function OwnerDashboardPage() {
           >
             ID Verification
           </button>
+          <Link
+            href="/logout"
+            className="p-2 rounded-xl bg-white/10 hover:bg-rose-500/30 text-rose-200 text-xs font-semibold backdrop-blur-md transition-all"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+          </Link>
         </div>
       </div>
 

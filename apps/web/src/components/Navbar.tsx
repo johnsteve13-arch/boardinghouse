@@ -256,36 +256,53 @@ export default function Navbar() {
                       <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
                       <span>Go to Dashboard</span>
                     </Link>
+                    <Link
+                      href="/logout"
+                      onClick={() => setRoleDropdownOpen(false)}
+                      className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 flex items-center space-x-2"
+                    >
+                      <LogOut className="w-3.5 h-3.5 text-rose-500" />
+                      <span>Log Out</span>
+                    </Link>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Dashboard Link / Avatar */}
+            {/* Dashboard Link / Avatar & Sign Out */}
             {user ? (
-              <Link
-                href={
-                  user.role === 'admin'
-                    ? '/dashboard/admin'
-                    : user.role === 'owner'
-                    ? '/dashboard/owner'
-                    : '/dashboard/student'
-                }
-                className="flex items-center space-x-2 pl-1 pr-3 py-1 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors text-xs font-semibold shadow-xs"
-              >
-                {user.avatarUrl ? (
-                  <img
-                    src={user.avatarUrl}
-                    alt={user.fullName}
-                    className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20"
-                  />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] text-white">
-                    {user.fullName[0]}
-                  </div>
-                )}
-                <span>Dashboard</span>
-              </Link>
+              <div className="flex items-center space-x-1.5">
+                <Link
+                  href={
+                    user.role === 'admin'
+                      ? '/dashboard/admin'
+                      : user.role === 'owner'
+                      ? '/dashboard/owner'
+                      : '/dashboard/student'
+                  }
+                  className="flex items-center space-x-2 pl-1 pr-3 py-1 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition-colors text-xs font-semibold shadow-xs"
+                >
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt={user.fullName}
+                      className="w-6 h-6 rounded-full object-cover ring-1 ring-white/20"
+                    />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-emerald-600 flex items-center justify-center text-[10px] text-white">
+                      {user.fullName[0]}
+                    </div>
+                  )}
+                  <span>Dashboard</span>
+                </Link>
+                <Link
+                  href="/logout"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                  title="Sign Out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Link>
+              </div>
             ) : (
               <div className="flex items-center space-x-2">
                 <Link
@@ -391,7 +408,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-1.5">
             <Link
               href={
                 user?.role === 'admin'
@@ -404,6 +421,14 @@ export default function Navbar() {
               className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700"
             >
               Open Dashboard
+            </Link>
+            <Link
+              href="/logout"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center py-2 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold hover:bg-rose-50 space-x-1.5"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
             </Link>
           </div>
         </div>

@@ -15,7 +15,8 @@ import {
   ExternalLink,
   MapPin,
   Check,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../../lib/authContext';
 import { OwnerVerification, PropertyReport, SystemSettings, AuditLog } from '@seait-stay/types';
@@ -147,6 +148,13 @@ export default function AdminDashboardPage() {
               {tab.label}
             </button>
           ))}
+          <Link
+            href="/logout"
+            className="p-1.5 rounded-xl text-slate-300 hover:text-rose-300 hover:bg-rose-500/20 transition-all ml-1"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+          </Link>
         </div>
       </div>
 

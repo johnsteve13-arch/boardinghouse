@@ -13,7 +13,8 @@ import {
   ArrowRight,
   GraduationCap,
   ShieldCheck,
-  Building
+  Building,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../../../lib/authContext';
 import { BoardingHouse, Inquiry } from '@seait-stay/types';
@@ -112,6 +113,13 @@ export default function StudentDashboardPage() {
             className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold transition-all shadow-sm"
           >
             Search Houses
+          </Link>
+          <Link
+            href="/logout"
+            className="p-2 rounded-xl bg-white/10 hover:bg-rose-500/30 text-rose-200 text-xs font-semibold backdrop-blur-md transition-all"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
           </Link>
         </div>
       </div>

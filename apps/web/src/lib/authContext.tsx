@@ -22,20 +22,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function loadUser() {
       try {
-        const token = localStorage.getItem('seait_stay_token');
+        const loggedOut = typeof window !== 'undefined' ? localStorage.getItem('seait_stay_logged_out') : null;
+        const token = typeof window !== 'undefined' ? localStorage.getItem('seait_stay_token') : null;
         if (token) {
           api.setToken(token);
           const currentUser = await api.getMe();
           if (currentUser) {
             setUser(currentUser);
           }
-        } else {
+        } else if (!loggedOut) {
           // Default to student demo user for instant preview usability
           await switchDemoRole('student');
         }
       } catch (err) {
         console.warn('Could not restore session, falling back to student demo');
-        await switchDemoRole('student');
+        const loggedOut = typeof window !== 'undefined' ? localStorage.getItem('seait_stay_logged_out') : null;
+        if (!loggedOut) {
+          await switchDemoRole('student');
+        }
       } finally {
         setIsLoading(false);
       }
@@ -45,6 +49,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, pass: string): Promise<User | undefined> => {
     setIsLoading(true);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('seait_stay_logged_out');
+    }
     try {
       const data = await api.login(email, pass);
       if (data?.user) {
@@ -59,6 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (formData: any) => {
     setIsLoading(true);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('seait_stay_logged_out');
+    }
     try {
       const data = await api.register(formData);
       if (data?.user) {
@@ -70,12 +80,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('seait_stay_logged_out', 'true');
+    }
     api.logout();
     setUser(null);
   };
 
   const switchDemoRole = async (role: UserRole) => {
     setIsLoading(true);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('seait_stay_logged_out');
+    }
     try {
       let email = 'kristine.bsit@seait.edu.ph';
       if (role === 'owner') email = 'nanay.rosa@gmail.com';
