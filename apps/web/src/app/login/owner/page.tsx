@@ -22,7 +22,7 @@ import { useAuth } from '../../../lib/authContext';
 
 export default function OwnerLoginPage() {
   const router = useRouter();
-  const { login, switchDemoRole } = useAuth();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,7 +39,7 @@ export default function OwnerLoginPage() {
       const loggedUser = await login(email, password);
       if (loggedUser && loggedUser.role !== 'owner') {
         setError(
-          `Notice: Your account is registered as "${loggedUser.role.toUpperCase()}". This portal is specifically for Boarding House Owners. You can switch personas below or proceed to your dashboard.`
+          `Notice: Your account is registered as "${loggedUser.role.toUpperCase()}". This portal is specifically for Boarding House Owners.`
         );
         setTimeout(() => {
           if (loggedUser.role === 'admin') router.push('/dashboard/admin');
@@ -50,21 +50,6 @@ export default function OwnerLoginPage() {
       router.push('/dashboard/owner');
     } catch (err: any) {
       setError(err.message || 'Invalid owner email or password. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleQuickOwnerDemo = async (ownerEmail: string) => {
-    setError(null);
-    setLoading(true);
-    try {
-      setEmail(ownerEmail);
-      setPassword('Password123!');
-      await switchDemoRole('owner');
-      router.push('/dashboard/owner');
-    } catch {
-      setError('Failed to switch to Owner persona.');
     } finally {
       setLoading(false);
     }
@@ -92,51 +77,6 @@ export default function OwnerLoginPage() {
             <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
               Sign in to manage your Crossing Rubber listings, toggle instant room availability, update monthly rental rates, and connect with SEAIT students.
             </p>
-          </div>
-
-          {/* Quick 1-Click Owner Demo Test Box */}
-          <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 text-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-amber-950 font-bold">
-                <Sparkles className="w-4 h-4 text-amber-600" />
-                <span className="text-[11px] uppercase tracking-wider">1-Click Instant Owner Login:</span>
-              </div>
-              <span className="text-[10px] text-amber-800 bg-amber-200/70 font-semibold px-2 py-0.5 rounded-full">
-                For Grading & Evaluation
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickOwnerDemo('nanay.rosa@gmail.com')}
-                disabled={loading}
-                className="flex items-center space-x-2.5 p-2.5 bg-white rounded-xl border border-amber-200 text-left hover:border-amber-400 hover:bg-amber-100/40 transition-all shadow-2xs group"
-              >
-                <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-white font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
-                  NR
-                </div>
-                <div className="truncate">
-                  <div className="font-bold text-slate-900 truncate">Nanay Rosa Magbanua</div>
-                  <div className="text-[10px] text-slate-500 truncate">Green Ville Dorm (Purok 7)</div>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleQuickOwnerDemo('tatay.ramon@gmail.com')}
-                disabled={loading}
-                className="flex items-center space-x-2.5 p-2.5 bg-white rounded-xl border border-amber-200 text-left hover:border-amber-400 hover:bg-amber-100/40 transition-all shadow-2xs group"
-              >
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
-                  TR
-                </div>
-                <div className="truncate">
-                  <div className="font-bold text-slate-900 truncate">Tatay Ramon Hernandez</div>
-                  <div className="text-[10px] text-slate-500 truncate">Scholar Haven (Purok 5)</div>
-                </div>
-              </button>
-            </div>
           </div>
 
           {/* Error / Role Warning Alert */}
