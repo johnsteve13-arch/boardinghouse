@@ -231,6 +231,21 @@ export default function HomePage() {
               <div key={i} className="h-80 bg-slate-200 animate-pulse rounded-2xl" />
             ))}
           </div>
+        ) : featuredProperties.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
+            <Building className="w-12 h-12 text-slate-300 mx-auto" />
+            <h3 className="font-bold text-base text-slate-800">No Boarding Houses Listed Yet</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              Are you a boarding house owner in Crossing Rubber, Tupi? List your property to be featured in the SEAIT student accommodation directory.
+            </p>
+            <Link
+              href="/dashboard/owner"
+              className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all"
+            >
+              <span>Owner Portal & Add Listing</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProperties.map((prop) => (

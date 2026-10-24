@@ -21,11 +21,10 @@ export function CompareProvider({ children }: { children: React.ReactNode }) {
       if (stored) {
         setCompareIds(JSON.parse(stored));
       } else {
-        // default 2 houses for demo
-        setCompareIds(['bh-1', 'bh-2']);
+        setCompareIds([]);
       }
     } catch {
-      setCompareIds(['bh-1', 'bh-2']);
+      setCompareIds([]);
     }
   }, []);
 

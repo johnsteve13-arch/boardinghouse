@@ -254,11 +254,21 @@ export default function OwnerDashboardPage() {
   if (!user) {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-xl font-bold text-slate-800">Owner Access Required</h2>
-        <p className="text-xs text-slate-500">Sign in with an owner account to manage your boarding houses.</p>
-        <Link href="/login" className="inline-block px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs shadow-sm hover:bg-emerald-700 transition-colors">
-          Sign In
-        </Link>
+        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-sm">
+          <Building className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-black text-slate-900">Owner Access Required</h2>
+        <p className="text-xs text-slate-500 max-w-xs mx-auto">
+          Sign in or create an owner account to list and manage your boarding houses in Crossing Rubber, Tupi.
+        </p>
+        <div className="flex items-center justify-center space-x-3 pt-2">
+          <Link href="/login/owner" className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-xs shadow-sm hover:bg-emerald-700 transition-colors">
+            Owner Sign In
+          </Link>
+          <Link href="/register" className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors">
+            Register as Owner
+          </Link>
+        </div>
       </div>
     );
   }
