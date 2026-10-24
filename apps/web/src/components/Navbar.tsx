@@ -10,15 +10,10 @@ import {
   Calculator,
   MessageSquare,
   Bell,
-  User as UserIcon,
-  Shield,
   Home,
-  CheckCircle2,
   Menu,
   X,
-  ChevronDown,
-  LogOut,
-  SlidersHorizontal
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../lib/authContext';
 import { useCompare } from '../lib/compareContext';
@@ -27,11 +22,10 @@ import { Notification } from '@seait-stay/types';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const { user, logout, switchDemoRole } = useAuth();
+  const { user } = useAuth();
   const { compareIds } = useCompare();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
@@ -146,132 +140,9 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Quick Demo Persona Switcher */}
-            <div className="relative">
-              <button
-                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="flex items-center space-x-2 pl-2 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50/70 hover:bg-slate-100 hover:border-slate-300 transition-all text-xs font-medium text-slate-700 shadow-xs"
-              >
-                <span
-                  className={`w-2 h-2 rounded-full ${
-                    user?.role === 'admin'
-                      ? 'bg-purple-500'
-                      : user?.role === 'owner'
-                      ? 'bg-amber-500'
-                      : 'bg-emerald-500'
-                  }`}
-                />
-                <span className="capitalize font-semibold text-slate-800">
-                  {user ? user.role : 'Student'}
-                </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-              </button>
-
-              {roleDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="text-[11px] uppercase tracking-wider font-bold text-slate-400">
-                      Switch Role Mode
-                    </p>
-                    <p className="text-xs text-slate-600 mt-0.5">Test system as different users:</p>
-                  </div>
-
-                  <div className="p-1 space-y-0.5">
-                    <button
-                      onClick={() => {
-                        switchDemoRole('student');
-                        setRoleDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between ${
-                        user?.role === 'student'
-                          ? 'bg-emerald-50 text-emerald-800 font-semibold'
-                          : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <UserIcon className="w-4 h-4 text-emerald-600" />
-                        <div>
-                          <div>Student (Tenant)</div>
-                          <div className="text-[10px] text-slate-500">Kristine Joy Alcantara</div>
-                        </div>
-                      </div>
-                      {user?.role === 'student' && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        switchDemoRole('owner');
-                        setRoleDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between ${
-                        user?.role === 'owner'
-                          ? 'bg-amber-50 text-amber-800 font-semibold'
-                          : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Home className="w-4 h-4 text-amber-600" />
-                        <div>
-                          <div>Boarding House Owner</div>
-                          <div className="text-[10px] text-slate-500">Nanay Rosa (Green Ville)</div>
-                        </div>
-                      </div>
-                      {user?.role === 'owner' && <CheckCircle2 className="w-4 h-4 text-amber-600" />}
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        switchDemoRole('admin');
-                        setRoleDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between ${
-                        user?.role === 'admin'
-                          ? 'bg-purple-50 text-purple-800 font-semibold'
-                          : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Shield className="w-4 h-4 text-purple-600" />
-                        <div>
-                          <div>System Administrator</div>
-                          <div className="text-[10px] text-slate-500">Engr. Danica Flores</div>
-                        </div>
-                      </div>
-                      {user?.role === 'admin' && <CheckCircle2 className="w-4 h-4 text-purple-600" />}
-                    </button>
-                  </div>
-
-                  <div className="border-t border-slate-100 mt-1 pt-1 px-1">
-                    <Link
-                      href={
-                        user?.role === 'admin'
-                          ? '/dashboard/admin'
-                          : user?.role === 'owner'
-                          ? '/dashboard/owner'
-                          : '/dashboard/student'
-                      }
-                      onClick={() => setRoleDropdownOpen(false)}
-                      className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-50 flex items-center space-x-2"
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Go to Dashboard</span>
-                    </Link>
-                    <Link
-                      href="/logout"
-                      onClick={() => setRoleDropdownOpen(false)}
-                      className="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 flex items-center space-x-2"
-                    >
-                      <LogOut className="w-3.5 h-3.5 text-rose-500" />
-                      <span>Log Out</span>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Dashboard Link / Avatar & Sign Out */}
             {user ? (
-              <div className="flex items-center space-x-1.5">
+              <div className="flex items-center space-x-2">
                 <Link
                   href={
                     user.role === 'admin'
@@ -362,74 +233,48 @@ export default function Navbar() {
           </div>
 
           <div className="border-t border-slate-200 pt-3">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Role Switcher (Demo)
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => {
-                  switchDemoRole('student');
-                  setMobileMenuOpen(false);
-                }}
-                className={`px-2 py-2 rounded-lg text-xs font-medium text-center border ${
-                  user?.role === 'student'
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-800'
-                    : 'border-slate-200 text-slate-700'
-                }`}
-              >
-                Student
-              </button>
-              <button
-                onClick={() => {
-                  switchDemoRole('owner');
-                  setMobileMenuOpen(false);
-                }}
-                className={`px-2 py-2 rounded-lg text-xs font-medium text-center border ${
-                  user?.role === 'owner'
-                    ? 'border-amber-500 bg-amber-50 text-amber-800'
-                    : 'border-slate-200 text-slate-700'
-                }`}
-              >
-                Owner
-              </button>
-              <button
-                onClick={() => {
-                  switchDemoRole('admin');
-                  setMobileMenuOpen(false);
-                }}
-                className={`px-2 py-2 rounded-lg text-xs font-medium text-center border ${
-                  user?.role === 'admin'
-                    ? 'border-purple-500 bg-purple-50 text-purple-800'
-                    : 'border-slate-200 text-slate-700'
-                }`}
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-
-          <div className="pt-2 space-y-1.5">
-            <Link
-              href={
-                user?.role === 'admin'
-                  ? '/dashboard/admin'
-                  : user?.role === 'owner'
-                  ? '/dashboard/owner'
-                  : '/dashboard/student'
-              }
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-medium text-sm hover:bg-emerald-700"
-            >
-              Open Dashboard
-            </Link>
-            <Link
-              href="/logout"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center py-2 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold hover:bg-rose-50 space-x-1.5"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
-            </Link>
+            {user ? (
+              <div className="space-y-2">
+                <Link
+                  href={
+                    user.role === 'admin'
+                      ? '/dashboard/admin'
+                      : user.role === 'owner'
+                      ? '/dashboard/owner'
+                      : '/dashboard/student'
+                  }
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 shadow-sm"
+                >
+                  Open Dashboard ({user.role})
+                </Link>
+                <Link
+                  href="/logout"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2 rounded-xl border border-rose-200 text-rose-600 text-xs font-semibold hover:bg-rose-50 space-x-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2.5 rounded-xl bg-emerald-600 text-white font-semibold text-sm hover:bg-emerald-700 shadow-sm"
+                >
+                  Student Sign In
+                </Link>
+                <Link
+                  href="/login/owner"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-center justify-center py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 font-semibold text-xs hover:bg-amber-100"
+                >
+                  Owner Portal
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
