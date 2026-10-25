@@ -31,7 +31,12 @@ import {
   CornerDownRight,
   ArrowRight,
   Navigation,
-  Compass
+  Compass,
+  Upload,
+  Image as ImageIcon,
+  Camera,
+  FileImage,
+  RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../../../lib/authContext';
 import { BoardingHouse, AvailabilityStatus, Room, Review } from '@seait-stay/types';
@@ -160,7 +165,81 @@ function calculateDistanceToCampus(lat: number, lng: number): number {
     'cctv_security'
   ]);
   const [newHouseCover, setNewHouseCover] = useState('https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800');
+  const [photoUploadMethod, setPhotoUploadMethod] = useState<'upload' | 'url' | 'presets'>('upload');
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoFileName, setPhotoFileName] = useState<string | null>(null);
+  const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const [isSubmittingHouse, setIsSubmittingHouse] = useState(false);
+
+  // Process and compress image file via canvas to high-quality lightweight JPEG (~100-250KB)
+  const processImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file (JPEG, PNG, WebP).');
+      return;
+    }
+
+    setUploadingPhoto(true);
+    setPhotoFileName(file.name);
+
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Scale to maximum 1280px on longest side for optimal speed & quality
+        const MAX_DIM = 1280;
+        if (width > height && width > MAX_DIM) {
+          height = Math.round((height * MAX_DIM) / width);
+          width = MAX_DIM;
+        } else if (height > MAX_DIM) {
+          width = Math.round((width * MAX_DIM) / height);
+          height = MAX_DIM;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setNewHouseCover(optimizedDataUrl);
+        } else {
+          setNewHouseCover(readerEvent.target?.result as string);
+        }
+        setUploadingPhoto(false);
+      };
+      img.onerror = () => {
+        alert('Could not decode image file.');
+        setUploadingPhoto(false);
+      };
+      img.src = readerEvent.target?.result as string;
+    };
+    reader.onerror = () => {
+      alert('Failed to read file.');
+      setUploadingPhoto(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const handlePhotoDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingPhoto(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
 
   const handlePurokSelect = (purokKey: string) => {
     setNewHousePurok(purokKey);
@@ -1083,35 +1162,206 @@ function calculateDistanceToCampus(lat: number, lng: number): number {
               </div>
             </div>
 
-            {/* Cover Image Selection */}
-            <div>
-              <label className="font-bold text-slate-700 block mb-1">Cover Photo URL *</label>
-              <input
-                type="url"
-                required
-                value={newHouseCover}
-                onChange={(e) => setNewHouseCover(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-800 font-medium mb-2"
-                placeholder="https://..."
-              />
-              <span className="text-[11px] text-slate-500 block mb-1.5 font-medium">Or choose a preset preview photo:</span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {imagePresets.map((preset, idx) => (
+            {/* Boarding House Photo Insertion (Device Upload, URL, or Gallery) */}
+            <div className="space-y-3 p-5 bg-slate-50 border border-slate-200/90 rounded-2xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="font-bold text-slate-800 text-xs flex items-center space-x-1.5">
+                    <Camera className="w-4 h-4 text-emerald-600" />
+                    <span>Boarding House Cover Photo *</span>
+                  </label>
+                  <p className="text-[11px] text-slate-500">
+                    Insert a photo of your boarding house exterior or room to show on the interactive map and search results.
+                  </p>
+                </div>
+
+                {/* Upload Method Switcher Tabs */}
+                <div className="flex items-center bg-slate-200/80 p-0.5 rounded-xl text-xs font-semibold self-start sm:self-auto">
                   <button
                     type="button"
-                    key={idx}
-                    onClick={() => setNewHouseCover(preset.url)}
-                    className={`relative rounded-xl overflow-hidden border-2 text-left group ${
-                      newHouseCover === preset.url ? 'border-emerald-600 ring-2 ring-emerald-500/20' : 'border-transparent'
+                    onClick={() => setPhotoUploadMethod('upload')}
+                    className={`px-3 py-1 rounded-lg transition-all flex items-center space-x-1 ${
+                      photoUploadMethod === 'upload'
+                        ? 'bg-white text-emerald-800 shadow-xs font-bold'
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    <img src={preset.url} alt={preset.label} className="w-full h-16 object-cover" />
-                    <span className="absolute inset-x-0 bottom-0 bg-slate-900/80 text-[10px] text-white p-1 truncate block">
-                      {preset.label}
-                    </span>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload File</span>
                   </button>
-                ))}
+                  <button
+                    type="button"
+                    onClick={() => setPhotoUploadMethod('url')}
+                    className={`px-3 py-1 rounded-lg transition-all flex items-center space-x-1 ${
+                      photoUploadMethod === 'url'
+                        ? 'bg-white text-emerald-800 shadow-xs font-bold'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>Web URL</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoUploadMethod('presets')}
+                    className={`px-3 py-1 rounded-lg transition-all flex items-center space-x-1 ${
+                      photoUploadMethod === 'presets'
+                        ? 'bg-white text-emerald-800 shadow-xs font-bold'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>Presets</span>
+                  </button>
+                </div>
               </div>
+
+              {/* METHOD 1: Device File Upload / Drag & Drop */}
+              {photoUploadMethod === 'upload' && (
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDraggingPhoto(true);
+                  }}
+                  onDragLeave={() => setIsDraggingPhoto(false)}
+                  onDrop={handlePhotoDrop}
+                  className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all bg-white ${
+                    isDraggingPhoto
+                      ? 'border-emerald-500 bg-emerald-50/50 scale-[1.01]'
+                      : 'border-slate-300 hover:border-emerald-400'
+                  }`}
+                >
+                  <input
+                    type="file"
+                    id="house-photo-file-input"
+                    accept="image/png, image/jpeg, image/jpg, image/webp"
+                    onChange={handlePhotoFileChange}
+                    className="hidden"
+                  />
+
+                  <div className="space-y-3">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center mx-auto shadow-xs">
+                      {uploadingPhoto ? (
+                        <RefreshCw className="w-6 h-6 animate-spin text-emerald-600" />
+                      ) : (
+                        <Upload className="w-6 h-6 text-emerald-600" />
+                      )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold text-slate-800">
+                        {uploadingPhoto
+                          ? 'Processing & optimizing photo...'
+                          : 'Choose a photo from your computer or phone'}
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Drag and drop your photo here, or click to browse files (JPEG, PNG, WebP)
+                      </p>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="house-photo-file-input"
+                        className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer shadow-xs transition-all active:scale-95"
+                      >
+                        <Camera className="w-3.5 h-3.5" />
+                        <span>Insert Photo from Device</span>
+                      </label>
+                    </div>
+
+                    {photoFileName && (
+                      <p className="text-[11px] text-emerald-700 font-semibold flex items-center justify-center space-x-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Loaded file: {photoFileName}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* METHOD 2: Web URL Input */}
+              {photoUploadMethod === 'url' && (
+                <div className="space-y-2 bg-white p-3.5 rounded-xl border border-slate-200">
+                  <label className="text-[11px] font-bold text-slate-700 block">
+                    Paste Image Link (Unsplash, Google Drive, Direct URL)
+                  </label>
+                  <input
+                    type="url"
+                    value={newHouseCover}
+                    onChange={(e) => {
+                      setNewHouseCover(e.target.value);
+                      setPhotoFileName(null);
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                    placeholder="https://..."
+                  />
+                </div>
+              )}
+
+              {/* METHOD 3: Preset Preview Photos */}
+              {photoUploadMethod === 'presets' && (
+                <div className="space-y-2 bg-white p-3.5 rounded-xl border border-slate-200">
+                  <span className="text-[11px] text-slate-500 block font-medium">
+                    Select a ready-to-use modern boarding house preview:
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {imagePresets.map((preset, idx) => (
+                      <button
+                        type="button"
+                        key={idx}
+                        onClick={() => {
+                          setNewHouseCover(preset.url);
+                          setPhotoFileName(null);
+                        }}
+                        className={`relative rounded-xl overflow-hidden border-2 text-left group transition-all ${
+                          newHouseCover === preset.url
+                            ? 'border-emerald-600 ring-2 ring-emerald-500/20 shadow-xs'
+                            : 'border-transparent hover:border-slate-200'
+                        }`}
+                      >
+                        <img src={preset.url} alt={preset.label} className="w-full h-16 object-cover" />
+                        <span className="absolute inset-x-0 bottom-0 bg-slate-900/80 text-[10px] text-white p-1 truncate block font-medium">
+                          {preset.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* LIVE PHOTO PREVIEW BOX */}
+              {newHouseCover && (
+                <div className="bg-white rounded-2xl p-3 border border-slate-200/90 flex flex-col sm:flex-row items-center gap-3.5 shadow-xs">
+                  <img
+                    src={newHouseCover}
+                    alt="Cover preview"
+                    className="w-full sm:w-32 h-24 object-cover rounded-xl border border-slate-200 shadow-inner shrink-0"
+                  />
+                  <div className="flex-1 space-y-1 text-center sm:text-left">
+                    <div className="flex items-center justify-center sm:justify-start space-x-2">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200 inline-flex items-center space-x-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span>Ready to Publish</span>
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        Cover Photo
+                      </span>
+                    </div>
+                    <p className="text-xs font-bold text-slate-800 truncate">
+                      {photoFileName ? photoFileName : 'Cover photo loaded'}
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      This photo will appear on the SEAIT 3.0 km map popup, search cards, and details page.
+                    </p>
+                  </div>
+                  <div className="flex sm:flex-col gap-1.5 shrink-0">
+                    <label
+                      htmlFor="house-photo-file-input"
+                      className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-bold cursor-pointer transition-colors text-center"
+                    >
+                      Change Photo
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Submit / Cancel Buttons */}
