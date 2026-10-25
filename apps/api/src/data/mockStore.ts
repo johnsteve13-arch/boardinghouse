@@ -27,7 +27,7 @@ export interface StoreState {
   auditLogs: AuditLog[];
 }
 
-// Clean production data: Only primary Administrator retained
+// Clean production data: Administrator and Primary Owner retained
 const initialUsers: User[] = [
   {
     id: 'user-admin-1',
@@ -40,12 +40,25 @@ const initialUsers: User[] = [
     isVerified: true,
     createdAt: '2024-01-15T08:00:00.000Z',
     updatedAt: '2024-01-15T08:00:00.000Z'
+  },
+  {
+    id: 'user-owner-jie',
+    email: 'jie@gmail.com',
+    fullName: 'Jie (Property Owner)',
+    role: 'owner',
+    phone: '+63 917 888 5678',
+    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+    department: 'Crossing Rubber Boarding Houses',
+    isVerified: true,
+    createdAt: '2024-01-15T08:00:00.000Z',
+    updatedAt: '2024-01-15T08:00:00.000Z'
   }
 ];
 
 // Pre-hashed "Password123!" using bcryptjs
 const initialPasswords: Record<string, string> = {
-  'user-admin-1': '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQmG6W65WVExv4v17Oaa.'
+  'user-admin-1': '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQmG6W65WVExv4v17Oaa.',
+  'user-owner-jie': '$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQmG6W65WVExv4v17Oaa.'
 };
 
 const initialBoardingHouses: BoardingHouse[] = [];
@@ -109,6 +122,10 @@ class MemoryStore {
 
   getUserPasswordHash(userId: string): string | undefined {
     return this.state.passwords[userId];
+  }
+
+  setUserPasswordHash(userId: string, hash: string): void {
+    this.state.passwords[userId] = hash;
   }
 
   updateUser(id: string, updates: Partial<User>): User | undefined {

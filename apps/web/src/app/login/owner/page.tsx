@@ -22,7 +22,7 @@ import { useAuth } from '../../../lib/authContext';
 
 export default function OwnerLoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, register: authRegister } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -68,6 +68,39 @@ export default function OwnerLoginPage() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
     if (error) setError(null);
+  };
+
+  const handleFillDemoOwner = () => {
+    setEmail('jie@gmail.com');
+    setPassword('Password123!');
+    setError(null);
+    setEmailTouched(true);
+  };
+
+  const handleAutoRegisterOwner = async () => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !isValidEmail(cleanEmail)) {
+      setError('Please provide a valid email format first.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const baseName = cleanEmail.split('@')[0] || 'Owner';
+      const displayName = baseName.charAt(0).toUpperCase() + baseName.slice(1);
+      await authRegister({
+        role: 'owner',
+        fullName: `${displayName} (Property Owner)`,
+        email: cleanEmail,
+        password: password || 'Password123!',
+        phone: '+63 917 888 5678'
+      });
+      router.push('/dashboard/owner');
+    } catch (err: any) {
+      setError(err.message || 'Auto-registration failed. Please use registration page.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -156,12 +189,31 @@ export default function OwnerLoginPage() {
 
           {/* Error / Role Warning Alert */}
           {error && (
-            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-start space-x-2.5 animate-in fade-in duration-200">
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <div className="space-y-0.5">
-                <span className="font-bold block">Sign-in Notice</span>
-                <span className="leading-relaxed">{error}</span>
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium space-y-2.5 animate-in fade-in duration-200">
+              <div className="flex items-start space-x-2.5">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5 flex-1">
+                  <span className="font-bold block">Sign-in Notice</span>
+                  <span className="text-rose-700 leading-relaxed">{error}</span>
+                </div>
               </div>
+
+              {error.includes('No account registered') && (
+                <div className="pt-2 border-t border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/80 p-2.5 rounded-xl border border-rose-200">
+                  <span className="text-[11px] text-rose-950 font-bold">
+                    Need to activate this email as an Owner?
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleAutoRegisterOwner}
+                    disabled={loading}
+                    className="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center space-x-1"
+                  >
+                    <span>Register &amp; Sign In as Owner</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -268,6 +320,26 @@ export default function OwnerLoginPage() {
               >
                 Admin / General Sign In &rarr;
               </Link>
+            </div>
+
+            {/* Quick Demo Pill */}
+            <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-amber-900 flex items-center space-x-1">
+                  <Home className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Verified Owner Account</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleFillDemoOwner}
+                  className="text-[10px] font-bold text-amber-800 hover:text-amber-900 bg-amber-100 hover:bg-amber-200 px-2 py-0.5 rounded-lg transition-colors border border-amber-300/60"
+                >
+                  Autofill Owner
+                </button>
+              </div>
+              <p className="text-[10px] text-amber-700/80 font-mono">
+                jie@gmail.com &bull; Password123!
+              </p>
             </div>
 
             {/* Submit Button */}
